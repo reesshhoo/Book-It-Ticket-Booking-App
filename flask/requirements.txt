@@ -1,0 +1,7 @@
+Flask
+Flask-sqlalchemy
+Flask-RESTful
+SQLAlchemy
+Werkzeug
+flask-jwt-extended
+flask-cors
