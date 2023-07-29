@@ -4,11 +4,11 @@
         <!------------------------------------------------------- Displaying venues -------------------------------------------------------------->
         <div class="row">
             <div class="row-3" v-for="venue in venues" :key="venue.venue_id">
-                <div class="d-flex justify-content-between  align-items-center" style=" border-bottom:3px solid rgba(13, 12, 12, 0.537);">
+                <div class="d-flex justify-content-between  align-items-center" style=" border-bottom:3px solid rgba(13, 12, 12, 0.537); margin-bottom: 15px;">
                     <h2 class="text-primary text-dark" style="margin-top:10px;">{{ venue.name }}</h2>
                     <!------------------------------------------------------- Venue Header ---------------------------------------------------------------->
                     <div>
-                        <button @click="addShowOpenModal" class="btn btn-success btn-lg text-primary mr-2" style="position:relative; "> Add show </button>
+                        <button @click="addShowOpenModal(venue.name)" class="btn btn-success btn-lg text-primary mr-2" style="position:relative; "> Add show </button>
                         <button class="btn btn-warning btn-lg text-primary mr-2"> + </button>
                         <button class="btn btn-danger btn-lg text-primary"> Del </button>
                     </div>
@@ -171,7 +171,8 @@ export default {
             this.showModal = true;
 
         },
-        addShowOpenModal() {
+        addShowOpenModal(venueName) {
+            this.venueName = venueName;
             this.addShowModal = true;
 
         },
@@ -209,7 +210,7 @@ export default {
                         // router.push('/Admin_View');
                         const {
                             venue_id,
-                            admin_id,
+                            admin_id
                         } = data
                         const new_venue = {
                             venue_id,
@@ -349,7 +350,7 @@ export default {
                 console.error('Venue not found.');
                 return;
             }
-            fetch("http://127.0.0.1:5000/api/Shows/{venue_id}", {
+            fetch(`http://127.0.0.1:5000/api/Shows/${currentVenue.venue_id}`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -377,7 +378,7 @@ export default {
 
     async mounted() {
         this.loadvenues();
-        this.loadShows();
+        // this.loadShows();
 
     }
 }

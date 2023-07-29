@@ -6,6 +6,7 @@ import os
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
 from datetime import timedelta, datetime
+from .customerror import * 
 
 
 # <---------------------------------------------------Helper Functions------------------------->
@@ -92,14 +93,16 @@ class Venue_api(Resource):
             venues = []
             # print(screens)
             for v in venue:
-                shows = list(Shows_api.get(self, venue_id=v.venue_id))
-                try:
-                    shows = list(Shows_api.get(self, venue_id=v.venue_id))
-                    if isinstance(shows, dict) and shows.get('status') is False:
-                        shows = []  # Empty list when the API returns a 400 status code
-                except:
+                shows = Shows_api.get(self, venue_id=v.venue_id)
+                print(shows)
+                if shows==None:
                     shows = []
-                
+                # try:
+                #     shows = list(Shows_api.get(self, venue_id=v.venue_id))
+                #     if isinstance(shows, dict) and shows.get('status') is False:
+                #         shows = []  # Empty list when the API returns a 400 status code
+                # except:
+                #     shows = []
                 venue_data = {
                     'venue_id': v.venue_id,
                     'name': v.name,
@@ -186,7 +189,8 @@ class Shows_api(Resource):
 
         shows = Show.query.filter_by(venue_id=venue_id).all()
         if len(shows) == 0:
-            return {'status': False, 'msg': 'No shows available for this venue'}, 400
+            # raise DataError(status_code=400)
+            return None
 
         shows_data = []
         for show in shows:
