@@ -17,7 +17,7 @@
                 <!----------------------------------------------------- Displaying Shows ----------------------------------------------------------------->
                 <!-- <div v-if="venue.shows.length > 0" class="shows-container"> -->
                 <div class="flex row">
-                    <div v-for="show in venue.shows" :key="show.show_id" class="card border-primary mb-2" style="max-width: 20rem; margin-top: 13px; margin-left:15px">
+                    <div v-for="show in venue.shows.shows" :key="show.show_id" class="card border-primary mb-2" style="max-width: 20rem; margin-top: 13px; margin-left:15px">
                         <div class="card-header">{{show.name}}</div>
                         <div class="card-body">
                             <h4 class="card-title"></h4>
@@ -182,7 +182,7 @@ export default {
         },
         closeShowModal() {
             this.addShowModal = false;
-            location.reload()
+            location.reload();
         },
         addVenue() {
             if (this.venueName) {
@@ -245,12 +245,13 @@ export default {
         addShow() {
             if (this.showName && this.price && this.ShowScreen && this.ShowDateTime && this.ShowSeats) {
                 const currentVenue = this.venues.find(venue => venue.name === this.venueName);
+                console.log(currentVenue.venue_id);
                 if (!currentVenue) {
                     console.error('Venue not found.');
                     return;
                 }
 
-                fetch(`http://127.0.0.1:5000/api/shows/${currentVenue.venue_id}`, {
+                fetch(`http://127.0.0.1:5000/api/Shows/${currentVenue.venue_id}`, {
                     method: "POST",
                     headers: {
                         "Content-Type": "application/json",
@@ -288,8 +289,16 @@ export default {
                             show_datetime
 
                         };
+                        // // console.log(this.venues);
+                        // const idx = this.venues.filter((e, i) => {
+                            //     return e.venue_id === currentVenue.venue_id ? i : -1;
+                            // })
+                            // // this.venues.filter(v => v.venue_id === currentVenue.venue_id).shows.shows.push(newShow);
+                            // this.venues[idx].shows.show.push(newShow);
+                            // // this.venues.shows.push(newShow);
                         currentVenue.shows.push(newShow);
                         console.log('New show added:', newShow);
+                        // window.reload();
                     } else {
                         if (data && data.msg) {
                             this.errormsg = data.msg;
@@ -329,13 +338,13 @@ export default {
                 if (!response.ok) {
                     alert("Response not ok");
                 }
-                console.log(response);
+                // console.log(response);
                 return response.json();
             }).then((data) => {
                 if (data) {
-                    console.log("here's the data");
+                    // console.log(data.venues);
                     this.venues = data.venues;
-                    console.log(this.venues)
+                    // console.log(this.venues)
 
                 } else {
                     this.errormsg = data.msg;

@@ -197,7 +197,7 @@ class Shows_api(Resource):
             show_data = {
                 'show_id': show.show_id,
                 'name': show.name,
-                'show_datetime': show.date_time,
+                'show_datetime': str(show.date_time),
                 'seats_available': show.seats_available,
                 'show_screen': show.show_screen,
                 'price': show.price
@@ -219,11 +219,12 @@ class Shows_api(Resource):
 
         form = request.get_json()
         show_name = form.get('name')
-        date_time = form.get('date_time')
-        seats_available = form.get('seats_available')
+        date_time = form.get('show_datetime')
+        seats_available = form.get('show_seats')
         price = form.get('price')
         show_screen = form.get('show_screen')
-        format_data = "%m/%d/%Y %I:%M %p"
+        # format_data = "%m/%d/%Y %I:%M %p"
+        format_data = "%Y-%m-%dT%H:%M"
         date_time = datetime.strptime(date_time, format_data)
 
         if is_screen_available(venue_id, show_screen, date_time):
