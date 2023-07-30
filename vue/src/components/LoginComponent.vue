@@ -41,10 +41,6 @@
                                 <input v-model="password" type="password" class="form-control">
                                 <p v-if="passworderror" style="color: red;">{{ passworderror }}</p>
 
-                                <label class="mt-2">Confirm Password</label><br>
-                                <input v-model="confirmpassword" type="password" class="form-control">
-                                <p v-if="passworderror" style="color: red;">{{ passworderror }}</p> <br>
-
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" v-model="role" name="userradio" id="user"
                                         value="user" checked="">
@@ -86,7 +82,6 @@ export default {
         return {
             email: '',
             password: '',
-            confirmpassword: '',
             emailerror: '',
             passworderror: '',
             role: '',
@@ -95,15 +90,12 @@ export default {
     },
     methods: {
         submitForm: function () {
-            if (this.email && this.password && this.confirmpassword) {
+            if (this.email && this.password) {
                 if (!this.isValidEmail(this.email)) {
                     this.emailerror = "Please enter a valid email address";
                     return;
                 }
-                if (this.password !== this.confirmpassword) {
-                    this.passworderror = 'Passwords do not match';
-                    return;
-                }
+
                 fetch("http://127.0.0.1:5000/api/login", {
                     method: "POST",
                     headers: {
@@ -124,6 +116,8 @@ export default {
                     if (data.status) {
                         localStorage.setItem("access_token", data.access_token);
                         localStorage.setItem("name", data.name);
+                        localStorage.setItem("role", this.role);
+
                         if (this.role == 'admin') {
                             router.push('/Admin_View')
                         }
@@ -159,13 +153,16 @@ export default {
         }
     },
     async mounted() {
-        if(localStorage.getItem("access_token")){
-                        if (this.role == 'admin') {
-                            router.push('/Admin_View')
-                        }
-                        else if (this.role=='user') {
-                            router.push('/User_view')
-                        }
+        if(localStorage.getItem("access_token")) {
+            switch(localStorage.getItem("role")) {
+                case "admin":
+                    router.push('/Admin_View');
+                    break;
+                case "user":
+                default:
+                    router.push('/User_view');
+                    break;
+            }
         }
 
     }
