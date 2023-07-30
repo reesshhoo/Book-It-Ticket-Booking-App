@@ -89,7 +89,7 @@ export default {
             confirmpassword: '',
             emailerror: '',
             passworderror: '',
-            role: 'user',
+            role: '',
             errorMessage: '',
         }
     },
@@ -157,6 +157,17 @@ export default {
             const emailRegex = /\S+@\S+\.\S+/;
             return emailRegex.test(email);
         }
+    },
+    async mounted() {
+        if(localStorage.getItem("access_token")){
+                        if (this.role == 'admin') {
+                            router.push('/Admin_View')
+                        }
+                        else if (this.role=='user') {
+                            router.push('/User_view')
+                        }
+        }
+
     }
 }
 
