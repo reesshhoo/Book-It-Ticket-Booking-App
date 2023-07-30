@@ -166,6 +166,10 @@ class Venue_api(Resource):
         venue = Venue.query.filter_by(venue_id=venue_id, admin_id=admin.admin_id).first()
         if not venue:
             return {'status': False, 'msg': 'Venue not found'}, 400
+        
+        shows = Show.query.filter_by(venue_id=venue_id).all()
+        for show in shows:
+            db.session.delete(show)
 
         db.session.delete(venue)
         db.session.commit()

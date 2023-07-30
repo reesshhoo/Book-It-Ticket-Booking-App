@@ -5,12 +5,12 @@
         <div class="row">
             <div class="row-3" v-for="venue in venues" :key="venue.venue_id">
                 <div class="d-flex justify-content-between  align-items-center" style=" border-bottom:3px solid rgba(13, 12, 12, 0.537); margin-bottom: 15px;">
-                    <h2 class="text-primary text-dark" style="margin-top:10px;">{{ venue.name }}</h2>
+                    <h2 class="text-primary text-dark" style="margin-top:15px;">{{ venue.name }}</h2>
                     <!------------------------------------------------------- Venue Header ---------------------------------------------------------------->
                     <div>
                         <button @click="addShowOpenModal(venue.name)" class="btn btn-success btn-lg text-primary mr-2" style="position:relative; "> Add show </button>
-                        <button class="btn btn-warning btn-lg text-primary mr-2"> + </button>
-                        <button class="btn btn-danger btn-lg text-primary"> Del </button>
+                        <button class="btn btn-warning btn-lg text-primary mr-2" > &#128393; </button>
+                        <button @click="deleteVenue(venue.name)" class="btn btn-danger btn-lg text-primary"> Del </button>
                     </div>
                 </div>
 
@@ -114,7 +114,7 @@
                             <h5> Seats Available</h5>
                         </label>
                         <div class="control mb-3">
-                            <input v-model="ShowSeats" label="seats" placeholder="Seats open for booking" />
+                            <input class="form-control" v-model="ShowSeats" label="seats" placeholder="Seats open for booking" />
                             <p v-if="ShowSeatserror" style="color: red;">{{ ShowSeatserror }}</p>
                         </div>
 
@@ -184,6 +184,33 @@ export default {
             this.addShowModal = false;
             location.reload();
         },
+        loadvenues() {
+            fetch("http://127.0.0.1:5000/api/Venues", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                    Authorization: "Bearer " + localStorage.getItem("access_token"),
+                }
+            }).then((response) => {
+                if (!response.ok) {
+                    alert("Response not ok");
+                }
+                // console.log(response);
+                return response.json();
+            }).then((data) => {
+                if (data) {
+                    // console.log(data.venues);
+                    this.venues = data.venues;
+                    // console.log(this.venues)
+
+                } else {
+                    this.errormsg = data.msg;
+                }
+            }).catch((e) => {
+                console.log(e);
+            });
+        },
         addVenue() {
             if (this.venueName) {
                 fetch("http://127.0.0.1:5000/api/Venues", {
@@ -241,6 +268,80 @@ export default {
                     this.venueNameerror = "Please enter the name of the venue";
                 }
             }
+        },
+        deleteVenue(venueName) {
+        const currentVenue = this.venues.find((venue) => venue.name === venueName);
+        if (!currentVenue) {
+            console.error("Venue not found");
+            return;
+        }
+
+        fetch(`http://127.0.0.1:5000/api/Venues/${currentVenue.venue_id}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "Access-Control-Allow-Origin": "*",
+                Authorization: "Bearer " + localStorage.getItem("access_token"),
+            }
+        })
+        .then((response) => {
+            if (!response.ok) {
+                alert("Response not ok");
+            }
+            return response.json();
+        })
+        .then((data) => {
+            if (data && data.status) {
+                // Remove the deleted venue from the `venues` array
+                const index = this.venues.indexOf(currentVenue);
+                if (index !== -1) {
+                    this.venues.splice(index, 1);
+                }
+                console.log('Venue deleted successfully');
+            } else {
+                if (data && data.msg) {
+                    this.errormsg = data.msg;
+                    console.log(this.errormsg);
+                } else {
+                    this.errormsg = "Unknown error occurred.";
+                    console.log(this.errormsg);
+                }
+            }
+        })
+        .catch((e) => {
+            console.log(e);
+        });
+    },
+        
+        loadShows() {
+            const currentVenue = this.venues.find((venue) => venue.name === this.venueName);
+            if (!currentVenue) {
+                console.error('Venue not found.');
+                return;
+            }
+            fetch(`http://127.0.0.1:5000/api/Shows/${currentVenue.venue_id}`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                    Authorization: "Bearer " + localStorage.getItem("access_token"),
+                }
+            }).then((response) => {
+                if (!response.ok) {
+                    alert("Response not ok");
+                }
+                console.log(response);
+                return response.json();
+            }).then((data) => {
+                if (data) {
+                    console.log("Here's the data");
+                    this.shows = data.shows;
+                } else {
+                    this.errormsg = data.msg;
+                }
+            }).catch((e) => {
+                console.log(e);
+            });
         },
         addShow() {
             if (this.showName && this.price && this.ShowScreen && this.ShowDateTime && this.ShowSeats) {
@@ -326,63 +427,6 @@ export default {
             }
         },
 
-        loadvenues() {
-            fetch("http://127.0.0.1:5000/api/Venues", {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Origin": "*",
-                    Authorization: "Bearer " + localStorage.getItem("access_token"),
-                }
-            }).then((response) => {
-                if (!response.ok) {
-                    alert("Response not ok");
-                }
-                // console.log(response);
-                return response.json();
-            }).then((data) => {
-                if (data) {
-                    // console.log(data.venues);
-                    this.venues = data.venues;
-                    // console.log(this.venues)
-
-                } else {
-                    this.errormsg = data.msg;
-                }
-            }).catch((e) => {
-                console.log(e);
-            });
-        },
-        loadShows() {
-            const currentVenue = this.venues.find((venue) => venue.name === this.venueName);
-            if (!currentVenue) {
-                console.error('Venue not found.');
-                return;
-            }
-            fetch(`http://127.0.0.1:5000/api/Shows/${currentVenue.venue_id}`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Origin": "*",
-                    Authorization: "Bearer " + localStorage.getItem("access_token"),
-                }
-            }).then((response) => {
-                if (!response.ok) {
-                    alert("Response not ok");
-                }
-                console.log(response);
-                return response.json();
-            }).then((data) => {
-                if (data) {
-                    console.log("Here's the data");
-                    this.shows = data.shows;
-                } else {
-                    this.errormsg = data.msg;
-                }
-            }).catch((e) => {
-                console.log(e);
-            });
-        }
     },
 
     async mounted() {
@@ -415,6 +459,7 @@ export default {
     width: 200px;
     font-size: 1.1rem;
     padding: 10px;
+    right: 0%;
 
 }
 
