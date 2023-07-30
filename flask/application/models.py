@@ -23,6 +23,7 @@ class Venue(db.Model):
     __tablename__ = 'venues'
     venue_id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(100), nullable=False)
+    venue_location = db.Column(db.String(100), nullable=False)
     admin_id = db.Column(db.Integer, db.ForeignKey('admins.admin_id'), nullable=False)
     shows = db.relationship('Show', backref='venue', lazy=True)
 
@@ -32,7 +33,7 @@ class Show(db.Model):
     name = db.Column(db.String(100), nullable=False)
     date_time = db.Column(db.DateTime, nullable=False)
     seats_available = db.Column(db.Integer, nullable=False)
-    seats_booked = db.Column(db.Integer)
+    seats_booked = db.Column(db.Integer, default=0)
     price = db.Column(db.Integer, nullable=False)
     show_screen = db.Column(db.Integer, nullable=False)
     venue_id = db.Column(db.Integer, db.ForeignKey('venues.venue_id'), nullable=False)

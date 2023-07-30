@@ -9,7 +9,7 @@ from datetime import timedelta, datetime
 from .customerror import * 
 
 
-# <---------------------------------------------------Helper Functions------------------------->
+# <---------------------------------------------------Helper Functions--------------------------------------------------->
 
 def is_screen_available(venue_id, show_screen, date_time):
     print(date_time, type(date_time))
@@ -22,7 +22,30 @@ def is_screen_available(venue_id, show_screen, date_time):
         Show.date_time < date_time + timedelta(hours=3)  # Assuming shows are 3 hours long
     ).first()
     return overlapping_show is None
+
+def convert_to_datetime(date_time):
+    format_data = "%Y-%m-%dT%H:%M"
+    converted_date_time = datetime.strptime(date_time, format_data)
+    return converted_date_time
+
+def convert_datetime_to_str(date_time):
+    def get_day_suffix(day):
+        if 11 <= day <= 13:
+            return 'th'
+        else:
+            return {1: 'st', 2: 'nd', 3: 'rd'}.get(day % 10, 'th')
+    
+    formatted_date = date_time.strftime("%d{} %B, %Y, %I:%M %p").format(get_day_suffix(date_time.day))
+    return formatted_date
+
+
+
+
 #<--------------------------------------------------- LOGIN/SIGNUP API --------------------------------------------------------->
+
+
+
+
 
 class Login_api(Resource):
     def post(self):
@@ -74,7 +97,14 @@ class Register_api(Resource):
         return {'status': False, 'msg': 'An account with the same Email already exists'}, 400
         
 
+
+
+
 #<-------------------------------------------ADMIN VENUE API----------------------------------------------------------------->
+
+
+
+
 
 class Venue_api(Resource):
 
@@ -122,12 +152,14 @@ class Venue_api(Resource):
         # return "",200
         form = request.get_json()
         venue_name = form.get('name')
+        venue_location = form.get('venue_location')
         if venue_name is not None:
-            new_venue = Venue(name=venue_name, admin_id=admin.admin_id)
+            new_venue = Venue(name=venue_name, admin_id=admin.admin_id, venue_location=venue_location)
             print()
             db.session.add(new_venue)
             db.session.commit()
-            return {'status': True, 'msg':'New Venue added Succesfully', 'venue_id': new_venue.venue_id, 'admin_id': new_venue.admin_id}, 200
+            print(new_venue.venue_location)
+            return {'status': True, 'msg':'New Venue added Succesfully', 'venue_id': new_venue.venue_id, 'admin_id': new_venue.admin_id, 'venue_location':new_venue.venue_location}, 200
         else:
             return {'status': False, 'msg': 'Invalid request'}, 400
         
@@ -201,7 +233,8 @@ class Shows_api(Resource):
             show_data = {
                 'show_id': show.show_id,
                 'name': show.name,
-                'show_datetime': str(show.date_time),
+                'show_datetime': convert_datetime_to_str(show.date_time),
+                'seats_booked': show.seats_booked,
                 'seats_available': show.seats_available,
                 'show_screen': show.show_screen,
                 'price': show.price
@@ -227,9 +260,7 @@ class Shows_api(Resource):
         seats_available = form.get('show_seats')
         price = form.get('price')
         show_screen = form.get('show_screen')
-        # format_data = "%m/%d/%Y %I:%M %p"
-        format_data = "%Y-%m-%dT%H:%M"
-        date_time = datetime.strptime(date_time, format_data)
+        date_time = convert_to_datetime(date_time)
 
         if is_screen_available(venue_id, show_screen, date_time):
             new_show = Show(name=show_name, date_time=date_time, seats_available=seats_available, price=price, venue_id=venue_id, show_screen=show_screen)

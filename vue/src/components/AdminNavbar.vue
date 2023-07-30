@@ -18,7 +18,7 @@
             </ul>
 
         </div>
-        <button id="logout" @click="logout" class="btn btn-danger nav-link text-primary"> <i style="font-size:24px" class="fa">&#xf08b;</i> Logout</button>
+        <button id="logout" @click="logout" class="btn btn-danger nav-link text-primary font-weight-bold"> <i style="font-size:24px" class="fa">&#xf08b;</i> Logout</button>
     </div>
 </nav>
 </template>

@@ -3,30 +3,42 @@
     <div class="container-fluid">
         <!------------------------------------------------------- Displaying venues -------------------------------------------------------------->
         <div class="row">
-            <div class="row-3" v-for="venue in venues" :key="venue.venue_id">
+            <div class="row-3 card border-primary mb-3 mt-5" v-for="venue in venues" :key="venue.venue_id">
                 <div class="d-flex justify-content-between  align-items-center" style=" border-bottom:3px solid rgba(13, 12, 12, 0.537); margin-bottom: 15px;">
-                    <h2 class="text-primary text-dark" style="margin-top:15px;">{{ venue.name }}</h2>
+                    <h2 class="text-primary text-dark" style="margin-top:15px;">{{ venue.name }}  {{ venue.venue_location }} </h2>
                     <!------------------------------------------------------- Venue Header ---------------------------------------------------------------->
                     <div>
                         <button @click="addShowOpenModal(venue.name)" class="btn btn-success btn-lg text-primary mr-2" style="position:relative; "> Add show </button>
-                        <button class="btn btn-warning btn-lg text-primary mr-2" > &#128393; </button>
+                        <button class="btn btn-warning btn-lg text-primary mr-2"> &#128393; </button>
                         <button @click="deleteVenue(venue.name)" class="btn btn-danger btn-lg text-primary"> Del </button>
                     </div>
                 </div>
 
                 <!----------------------------------------------------- Displaying Shows ----------------------------------------------------------------->
                 <!-- <div v-if="venue.shows.length > 0" class="shows-container"> -->
-                <div class="flex row">
+                <div class="flex row mb-2">
                     <div v-for="show in venue.shows.shows" :key="show.show_id" class="card border-primary mb-2" style="max-width: 20rem; margin-top: 13px; margin-left:15px">
-                        <div class="card-header">{{show.name}}</div>
+
+                        <div class="card-header" style="font-size: 32px;">{{show.name}}</div>
                         <div class="card-body">
                             <h4 class="card-title"></h4>
-                            <p class="card-text">Some quick example text to build on the card title and make up the bulk of
-                                the card's content.</p>
-                            <div class="d-grid gap-2">
-                                <button class="btn btn-warning text-primary" type="button">Update</button>
-                                <button class="btn btn-danger text-white" type="button">Delete</button>
-                            </div>
+                            <h6 class="card-subtitle text-muted" style="font-size: 20px;">{{ show.show_datetime }}</h6>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" class="d-block user-select-none" width="100%" height="200" aria-label="Placeholder: Image cap" focusable="false" role="img" preserveAspectRatio="xMidYMid slice" viewBox="0 0 318 180" style="font-size:1.125rem;text-anchor:middle">
+                            <rect width="100%" height="100%" fill="#868e96"></rect>
+                            <text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text>
+                        </svg>
+                        <div class="card-body">
+                            <p class="card-text" style="font-size: 20px;">Screen Number : {{ show.show_screen }}</p>
+                            <!-- <p class="card-text" style="font-size: 20px;">{{ show.show_datetime }}</p> -->
+                            <p class="card-text" style="font-size: 20px;">Seats Available:  {{ show.seats_booked }} / {{ show.seats_available }}</p>
+
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button class="btn btn-warning text-primary" type="button">Update</button>
+                            <button class="btn btn-danger text-white mb-3" type="button">Delete</button>
+
                             <!-- </div> -->
                         </div>
                     </div>
@@ -56,14 +68,15 @@
                             <input class="form-control" type="text" v-model="venueName" placeholder="Enter venue name" />
                             <p v-if="venueNameerror" style="color: red;">{{ venueNameerror }}</p>
                         </div>
-                        <!-- <label class="label">
-                                <h5> No. of screens in venue </h5>
-                            </label>
-                            <div class="control mb-3">
-                                <input class="form-control" type="number" v-model="venueScreens"
-                                    placeholder="Enter seating capacity of venue" />
-                                <p v-if="venueScreenerror" style="color: red;">{{ venueScreenerror }}</p>
-                            </div> -->
+                        <label class="label">
+                            <h5> Venue Location </h5>
+
+                        </label>
+                        <div class="control mb-3">
+                            <input class="form-control" type="text" v-model="venueLocation" placeholder="Enter venue location" />
+                            <p v-if="venueLocationerror" style="color: red;">{{ venueLocationerror }}</p>
+                        </div>
+
                     </div>
                 </div>
                 <!-- </section> -->
@@ -149,12 +162,13 @@ export default {
             venues: [],
             venueName: '',
             venueNameerror: '',
+            venueLocation: '',
+            venueLocationerror: '',
             shows: {},
             showName: '',
             ShowScreen: '',
             ShowSeats: 0,
             ShowDateTime: '',
-            screenOptions: [],
             ShowNameerror: '',
             ShowScreenerror: '',
             price: '',
@@ -178,7 +192,7 @@ export default {
         },
         closeModal() {
             this.showModal = false;
-            location.reload()
+            // location.reload()
         },
         closeShowModal() {
             this.addShowModal = false;
@@ -212,7 +226,7 @@ export default {
             });
         },
         addVenue() {
-            if (this.venueName) {
+            if (this.venueName && this.venueLocation) {
                 fetch("http://127.0.0.1:5000/api/Venues", {
                     method: "POST",
                     headers: {
@@ -222,6 +236,7 @@ export default {
                     },
                     body: JSON.stringify({
                         name: this.venueName,
+                        venue_location: this.venueLocation,
                     }),
 
                 }).then((response) => {
@@ -237,11 +252,13 @@ export default {
                         // router.push('/Admin_View');
                         const {
                             venue_id,
-                            admin_id
+                            admin_id,
+                            venue_location,
                         } = data
                         const new_venue = {
                             venue_id,
                             name: this.venueName,
+                            venue_location,
                             admin_id,
                         }
 
@@ -267,82 +284,85 @@ export default {
                 if (!this.venueName) {
                     this.venueNameerror = "Please enter the name of the venue";
                 }
+                if (!this.venueLocation) {
+                    this.venueLocationerror = "Please enter the Location of the venue";
+                }
             }
         },
         deleteVenue(venueName) {
-        const currentVenue = this.venues.find((venue) => venue.name === venueName);
-        if (!currentVenue) {
-            console.error("Venue not found");
-            return;
-        }
-
-        fetch(`http://127.0.0.1:5000/api/Venues/${currentVenue.venue_id}`, {
-            method: "DELETE",
-            headers: {
-                "Content-Type": "application/json",
-                "Access-Control-Allow-Origin": "*",
-                Authorization: "Bearer " + localStorage.getItem("access_token"),
-            }
-        })
-        .then((response) => {
-            if (!response.ok) {
-                alert("Response not ok");
-            }
-            return response.json();
-        })
-        .then((data) => {
-            if (data && data.status) {
-                // Remove the deleted venue from the `venues` array
-                const index = this.venues.indexOf(currentVenue);
-                if (index !== -1) {
-                    this.venues.splice(index, 1);
-                }
-                console.log('Venue deleted successfully');
-            } else {
-                if (data && data.msg) {
-                    this.errormsg = data.msg;
-                    console.log(this.errormsg);
-                } else {
-                    this.errormsg = "Unknown error occurred.";
-                    console.log(this.errormsg);
-                }
-            }
-        })
-        .catch((e) => {
-            console.log(e);
-        });
-    },
-        
-        loadShows() {
-            const currentVenue = this.venues.find((venue) => venue.name === this.venueName);
+            const currentVenue = this.venues.find((venue) => venue.name === venueName);
             if (!currentVenue) {
-                console.error('Venue not found.');
+                console.error("Venue not found");
                 return;
             }
-            fetch(`http://127.0.0.1:5000/api/Shows/${currentVenue.venue_id}`, {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Access-Control-Allow-Origin": "*",
-                    Authorization: "Bearer " + localStorage.getItem("access_token"),
-                }
-            }).then((response) => {
-                if (!response.ok) {
-                    alert("Response not ok");
-                }
-                console.log(response);
-                return response.json();
-            }).then((data) => {
-                if (data) {
-                    console.log("Here's the data");
-                    this.shows = data.shows;
-                } else {
-                    this.errormsg = data.msg;
-                }
-            }).catch((e) => {
-                console.log(e);
-            });
+
+            fetch(`http://127.0.0.1:5000/api/Venues/${currentVenue.venue_id}`, {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Access-Control-Allow-Origin": "*",
+                        Authorization: "Bearer " + localStorage.getItem("access_token"),
+                    }
+                })
+                .then((response) => {
+                    if (!response.ok) {
+                        alert("Response not ok");
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    if (data && data.status) {
+                        // Remove the deleted venue from the `venues` array
+                        const index = this.venues.indexOf(currentVenue);
+                        if (index !== -1) {
+                            this.venues.splice(index, 1);
+                        }
+                        console.log('Venue deleted successfully');
+                    } else {
+                        if (data && data.msg) {
+                            this.errormsg = data.msg;
+                            console.log(this.errormsg);
+                        } else {
+                            this.errormsg = "Unknown error occurred.";
+                            console.log(this.errormsg);
+                        }
+                    }
+                })
+                .catch((e) => {
+                    console.log(e);
+                });
         },
+
+        // loadShows() {
+        //     const currentVenue = this.venues.find((venue) => venue.name === this.venueName);
+        //     if (!currentVenue) {
+        //         console.error('Venue not found.');
+        //         return;
+        //     }
+        //     fetch(`http://127.0.0.1:5000/api/Shows/${currentVenue.venue_id}`, {
+        //         method: "GET",
+        //         headers: {
+        //             "Content-Type": "application/json",
+        //             "Access-Control-Allow-Origin": "*",
+        //             Authorization: "Bearer " + localStorage.getItem("access_token"),
+        //         }
+        //     }).then((response) => {
+        //         if (!response.ok) {
+        //             alert("Response not ok");
+        //         }
+        //         console.log(response);
+        //         return response.json();
+        //     }).then((data) => {
+        //         if (data) {
+        //             console.log("Here's the data");
+        //             this.shows = data.shows;
+        //         } else {
+        //             this.errormsg = data.msg;
+        //         }
+        //     }).catch((e) => {
+        //         console.log(e);
+        //     });
+        // },
         addShow() {
             if (this.showName && this.price && this.ShowScreen && this.ShowDateTime && this.ShowSeats) {
                 const currentVenue = this.venues.find(venue => venue.name === this.venueName);
@@ -392,11 +412,11 @@ export default {
                         };
                         // // console.log(this.venues);
                         // const idx = this.venues.filter((e, i) => {
-                            //     return e.venue_id === currentVenue.venue_id ? i : -1;
-                            // })
-                            // // this.venues.filter(v => v.venue_id === currentVenue.venue_id).shows.shows.push(newShow);
-                            // this.venues[idx].shows.show.push(newShow);
-                            // // this.venues.shows.push(newShow);
+                        //     return e.venue_id === currentVenue.venue_id ? i : -1;
+                        // })
+                        // // this.venues.filter(v => v.venue_id === currentVenue.venue_id).shows.shows.push(newShow);
+                        // this.venues[idx].shows.show.push(newShow);
+                        // // this.venues.shows.push(newShow);
                         currentVenue.shows.push(newShow);
                         console.log('New show added:', newShow);
                         // window.reload();
