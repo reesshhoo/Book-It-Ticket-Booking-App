@@ -24,7 +24,7 @@ app.app_context().push()
 api.add_resource(Login_api, "/api/login")
 api.add_resource(Register_api, "/api/register")
 api.add_resource(Venue_api,"/api/Venues", "/api/Venues/<venue_id>")
-api.add_resource(Shows_api,"/api/Shows","/api/Shows/<show_id>")
+api.add_resource(Shows_api, "/api/Shows/<venue_id>","/api/Shows/edit/<show_id>")
 # api.add_resource(User_Login_api, "/api/user_login")
 # api.add_resource(User_Register_api, "/api/user_register")
 

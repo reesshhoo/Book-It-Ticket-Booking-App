@@ -27,7 +27,8 @@
                             <h4 class="card-title"></h4>
                             <h6 class="card-subtitle text-muted" style="font-size: 20px;">{{ show.show_datetime }}</h6>
                         </div>
-                        <svg xmlns="http://www.w3.org/2000/svg" class="d-block user-select-none" width="100%" height="200" aria-label="Placeholder: Image cap" focusable="false" role="img" preserveAspectRatio="xMidYMid slice" viewBox="0 0 318 180" style="font-size:1.125rem;text-anchor:middle">
+                        <img v-if="show.imagefile" :src="show.imagefile">
+                        <svg v-else class="d-block user-select-none" width="100%" height="200" aria-label="Placeholder: Image cap" focusable="false" role="img" preserveAspectRatio="xMidYMid slice" viewBox="0 0 318 180" style="font-size:1.125rem;text-anchor:middle">
                             <rect width="100%" height="100%" fill="#868e96"></rect>
                             <text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text>
                         </svg>
@@ -53,6 +54,9 @@
 
     <div class=" add-venue-container">
         <button @click="OpenModal" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#VenueModal" type="button" style="margin-top: 450px;">Add New Venue</button>
+        <!-- <i  type="button" class="bi bi-plus-circle-fill text-success plus" style="font-size: 4rem" data-bs-toggle="modal"
+        data-bs-target="#VenueModal">
+            </i> -->
     </div>
     <div class="modal fade" :class="{ 'show': showModal }" id="VenueModal" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
@@ -109,6 +113,8 @@
                             <input class="form-control" type="text" v-model="newVenueName" placeholder="Enter venue name" />
 
                         </div>
+                       
+                        
                         <label class="label">
                             <h5> Venue Location </h5>
 
@@ -155,7 +161,14 @@
                             <input class="form-control" type="text" v-model="price" placeholder="Enter price of each ticket" />
                             <p v-if="priceerror" style="color: red;">{{ priceerror }}</p>
                         </div>
+                        <label class="label">
+                            <h5> Upload Image  </h5>
 
+                        </label>
+                        <div class="control mb-3">
+                            <input @change="uploadImage" class="form-control" type="file"  placeholder="Upload show image" />
+
+                        </div>
                         <label class="label">
                             <h5> Screen Number </h5>
                         </label>
@@ -214,7 +227,14 @@
                         <div class="control mb-3">
                             <input class="form-control" type="text" v-model="newprice" placeholder="Enter price of each ticket" />
                         </div>
+                        <label class="label">
+                            <h5> Upload Image  </h5>
 
+                        </label>
+                        <div class="control mb-3">
+                            <input @change="uploadImage" class="form-control" type="file"  placeholder="Uplaod Show image" />
+
+                        </div>
                         <label class="label">
                             <h5> Screen Number </h5>
                         </label>
@@ -256,6 +276,8 @@ export default {
     data() {
         return {
             errormsg: '',
+            imagefile:'',
+            newimagefile:'',
             venues: [],
             venueName: '',
             newVenueName: '',
@@ -323,6 +345,16 @@ export default {
         closeEditShowModal() {
             this.EditShowModal = false;
             // location.reload();
+        },
+        uploadImage(event) {
+            let file = event.target.files[0];
+            let reader = new FileReader();
+            let that = this
+            reader.onloadend = function () {
+                // console.log('RESULT', reader.result)
+                that.imagefile = reader.result
+            }
+            reader.readAsDataURL(file);
         },
         loadvenues() {
             fetch("http://127.0.0.1:5000/api/Venues", {
@@ -542,6 +574,7 @@ export default {
                         name: this.showName,
                         price: this.price,
                         show_screen: this.ShowScreen,
+                        imagefile: this.imagefile,
                         show_seats: this.ShowSeats,
                         show_datetime: this.ShowDateTime
                     }),
@@ -618,7 +651,7 @@ export default {
             // console.log(currentVenue);
             const currentShow = currentVenue.shows.shows.find(show => show.name === this.showName);
             // console.log(currentShow);
-            if (!this.newshowName && !this.newprice && !this.newShowDateTime && !this.newShowScreen && !this.newShowSeats) {
+            if (!this.newshowName && !this.newprice && !this.newShowDateTime && !this.newShowScreen && !this.newShowSeats && !this.newimagefile) {
                 console.error("No changes made");
                 return;
             }
@@ -638,8 +671,11 @@ export default {
             if (this.newShowSeats) {
                 requestBody.price = this.newprice;
             }
+            if (this.newimagefile) {
+                requestBody.imagefile = this.newimagefile;
+            }
             // console.log(currentShow)
-            fetch(`http://127.0.0.1:5000/api/Shows/${currentShow.show_id}`, {
+            fetch(`http://127.0.0.1:5000/api/Shows/edit/${currentShow.show_id}`, {
                     method: "PUT",
                     headers: {
                         "Content-Type": "application/json",
@@ -672,7 +708,10 @@ export default {
                         if (this.newShowSeats) {
                             currentShow.seats_available = this.newShowSeats;
                         }
-                        console.log("Venue updated successfully");
+                        if (this.newimagefile) {
+                            currentShow.imagefile = this.newimagefile;
+                        }
+                        console.log("Show updated successfully");
                     } else {
                         if (data && data.msg) {
                             this.errormsg = data.msg;
@@ -736,5 +775,11 @@ export default {
 
 .col-md-4 {
     padding: 0.5rem;
+}
+
+.plus {
+  position: fixed;
+  bottom: 5%;
+  right: 2%;
 }
 </style>

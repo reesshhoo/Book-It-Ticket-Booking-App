@@ -124,7 +124,7 @@ class Venue_api(Resource):
             # print(screens)
             for v in venue:
                 shows = Shows_api.get(self, venue_id=v.venue_id)
-                print(shows)
+                # print(shows)
                 if shows==None:
                     shows = []
                 # try:
@@ -238,6 +238,7 @@ class Shows_api(Resource):
                 'seats_booked': show.seats_booked,
                 'seats_available': show.seats_available,
                 'show_screen': show.show_screen,
+                'imagefile': show.image,
                 'price': show.price
             }
             shows_data.append(show_data)
@@ -261,10 +262,11 @@ class Shows_api(Resource):
         seats_available = form.get('show_seats')
         price = form.get('price')
         show_screen = form.get('show_screen')
+        image = form.get('imagefile')
         date_time = convert_to_datetime(date_time)
 
         if is_screen_available(venue_id, show_screen, date_time):
-            new_show = Show(name=show_name, date_time=date_time, seats_available=seats_available, price=price, venue_id=venue_id, show_screen=show_screen)
+            new_show = Show(name=show_name, date_time=date_time, seats_available=seats_available, price=price, venue_id=venue_id, show_screen=show_screen, image=image)
             db.session.add(new_show)
             db.session.commit()
             return {'status': True, 'msg': 'New show added successfully', 'show_id': new_show.show_id}, 200
@@ -292,7 +294,8 @@ class Shows_api(Resource):
         date_time = form.get('date_time')
         seats_available = form.get('seats_available')
         price = form.get('price')
-
+        image = form.get('imagefile')
+        date_time = convert_to_datetime(date_time)
         if show_name is not None:
             show.name = show_name
         if date_time is not None:
@@ -303,6 +306,8 @@ class Shows_api(Resource):
             show.seats_available = seats_available
         if price is not None:
             show.price = price
+        if image is not None:
+            show.image = image
 
         db.session.commit()
 

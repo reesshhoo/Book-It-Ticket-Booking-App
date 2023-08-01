@@ -36,6 +36,7 @@ class Show(db.Model):
     seats_booked = db.Column(db.Integer, default=0)
     price = db.Column(db.Integer, nullable=False)
     show_screen = db.Column(db.Integer, nullable=False)
+    image = db.Column(db.String)
     venue_id = db.Column(db.Integer, db.ForeignKey('venues.venue_id'), nullable=False)
     bookings = db.relationship('Booking', backref='show', lazy=True)
 
