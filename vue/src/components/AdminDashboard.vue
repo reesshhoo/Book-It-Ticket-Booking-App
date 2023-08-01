@@ -5,17 +5,20 @@
         <div class="row">
             <div class="row-3 card border-primary mb-3 mt-5" v-for="venue in venues" :key="venue.venue_id">
                 <div class="d-flex justify-content-between  align-items-center" style=" border-bottom:3px solid rgba(13, 12, 12, 0.537); margin-bottom: 15px;">
-                    <h2 class="text-primary text-dark" style="margin-top:15px;">{{ venue.name }}  {{ venue.venue_location }} </h2>
+                    <h2 class="text-primary text-dark" style="margin-top:15px;">{{ venue.name }} <br />
+                        <h6 class="card-subtitle text-muted mt-0.7" style="font-size: 20px; margin-left: 2px;"> {{ venue.venue_location }}</h6>
+                    </h2>
                     <!------------------------------------------------------- Venue Header ---------------------------------------------------------------->
                     <div>
                         <button @click="addShowOpenModal(venue.name)" class="btn btn-success btn-lg text-primary mr-2" style="position:relative; "> Add show </button>
-                        <button class="btn btn-warning btn-lg text-primary mr-2"> &#128393; </button>
+                        <button @click="OpenEditvenueModal(venue.name)" class="btn btn-warning btn-lg text-primary mr-2"> &#128393; </button>
                         <button @click="deleteVenue(venue.name)" class="btn btn-danger btn-lg text-primary"> Del </button>
+
                     </div>
                 </div>
 
                 <!----------------------------------------------------- Displaying Shows ----------------------------------------------------------------->
-                <!-- <div v-if="venue.shows.length > 0" class="shows-container"> -->
+
                 <div class="flex row mb-2">
                     <div v-for="show in venue.shows.shows" :key="show.show_id" class="card border-primary mb-2" style="max-width: 20rem; margin-top: 13px; margin-left:15px">
 
@@ -31,12 +34,12 @@
                         <div class="card-body">
                             <p class="card-text" style="font-size: 20px;">Screen Number : {{ show.show_screen }}</p>
                             <!-- <p class="card-text" style="font-size: 20px;">{{ show.show_datetime }}</p> -->
-                            <p class="card-text" style="font-size: 20px;">Seats Available:  {{ show.seats_booked }} / {{ show.seats_available }}</p>
+                            <p class="card-text" style="font-size: 20px;">Seats Available: {{ show.seats_booked }} / {{ show.seats_available }}</p>
 
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button class="btn btn-warning text-primary" type="button">Update</button>
+                            <button @click="OpenEditShowModal(show.name)" class="btn btn-warning text-primary" type="button">Update</button>
                             <button class="btn btn-danger text-white mb-3" type="button">Delete</button>
 
                             <!-- </div> -->
@@ -87,10 +90,48 @@
             </div>
         </div>
     </div>
+    <!----------------------------------------------------- Editing venues Modal ----------------------------------------------------------------->
+
+    <div class="modal fade" :class="{ 'show': EditVenueModal }" id="EditVenueModal" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="VenueModalLabel" style="position: fixed;">Edit Venue</h5>
+                    <button @click="closeEditVenueModal" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="field">
+                        <label class="label">
+                            <h5> Venue Name </h5>
+
+                        </label>
+                        <div class="control mb-3">
+                            <input class="form-control" type="text" v-model="newVenueName" placeholder="Enter venue name" />
+
+                        </div>
+                        <label class="label">
+                            <h5> Venue Location </h5>
+
+                        </label>
+                        <div class="control mb-3">
+                            <input class="form-control" type="text" v-model="newVenueLocation" placeholder="Enter venue location" />
+
+                        </div>
+
+                    </div>
+                </div>
+                <!-- </section> -->
+                <div class="modal-footer">
+                    <button class="btn btn-success" @click="EditVenue">Edit Venue</button>
+                    <button class="btn btn-danger" data-bs-dismiss="modal" @click="closeEditVenueModal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!----------------------------------------------------- Adding Shows Modal ----------------------------------------------------------------->
 
-    <div class="modal fade" :class="{ 'show': addShowModal }" id="VenueModal" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+    <div class="modal fade" :class="{ 'show': addShowModal }" id="AddShowModal" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header">
@@ -148,6 +189,62 @@
             </div>
         </div>
     </div>
+
+    <!----------------------------------------------------- Editing Shows Modal ----------------------------------------------------------------->
+
+    <div class="modal fade" :class="{ 'show': EditShowModal }" id="EditShowModal" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ShowModalLabel" style="position: fixed;">Edit Show</h5>
+                    <button @click="closeEditShowModal" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="field">
+                        <label class="label">
+                            <h5> Show Name </h5>
+                        </label>
+                        <div class="control mb-3">
+                            <input class="form-control" type="text" v-model="newshowName" placeholder="Enter Show name" />
+                        </div>
+
+                        <label class="label">
+                            <h5> Price </h5>
+                        </label>
+                        <div class="control mb-3">
+                            <input class="form-control" type="text" v-model="newprice" placeholder="Enter price of each ticket" />
+                        </div>
+
+                        <label class="label">
+                            <h5> Screen Number </h5>
+                        </label>
+                        <div class="control mb-3">
+                            <input class="form-control" type="text" v-model="newShowScreen" placeholder="Enter the Screen no. of the show" />
+                        </div>
+
+                        <label class="label">
+                            <h5> Seats Available</h5>
+                        </label>
+                        <div class="control mb-3">
+                            <input class="form-control" v-model="newShowSeats" label="seats" placeholder="Seats open for booking" />
+                        </div>
+
+                        <label class="label">
+                            <h5> Date and Time of the show </h5>
+                        </label>
+                        <div class="control mb-3">
+                            <input class="form-control" type="datetime-local" v-model="newShowDateTime" placeholder="Enter date and time of show" />
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success" @click="EditShow">Edit Show</button>
+                    <button class="btn btn-danger" data-bs-dismiss="modal" @click="closeEditShowModal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 </template>
 
@@ -161,10 +258,16 @@ export default {
             errormsg: '',
             venues: [],
             venueName: '',
+            newVenueName: '',
             venueNameerror: '',
             venueLocation: '',
+            newVenueLocation: '',
             venueLocationerror: '',
-            shows: {},
+            newshowName: '',
+            newprice: '',
+            newShowScreen: '',
+            newShowSeats: 0,
+            newShowDateTime: '',
             showName: '',
             ShowScreen: '',
             ShowSeats: 0,
@@ -174,7 +277,9 @@ export default {
             price: '',
             priceerror: '',
             showModal: false,
+            EditVenueModal: false,
             addShowModal: false,
+            EditShowModal: false,
             ShowSeatserror: '',
             ShowDatetimeerror: '',
 
@@ -192,11 +297,32 @@ export default {
         },
         closeModal() {
             this.showModal = false;
-            // location.reload()
+            location.reload()
         },
         closeShowModal() {
             this.addShowModal = false;
+            this.venueName = '';
             location.reload();
+        },
+        OpenEditvenueModal(venueName) {
+            console.log(venueName);
+            this.newVenueName = '';
+            this.newVenueLocation = '';
+            this.venueName = venueName;
+            this.EditVenueModal = true;
+        },
+        closeEditVenueModal() {
+            this.EditVenueModal = false;
+            // location.reload();
+        },
+        OpenEditShowModal(showName) {
+            // console.log(showName)
+            this.showName = showName;
+            this.EditShowModal = true;
+        },
+        closeEditShowModal() {
+            this.EditShowModal = false;
+            // location.reload();
         },
         loadvenues() {
             fetch("http://127.0.0.1:5000/api/Venues", {
@@ -214,9 +340,9 @@ export default {
                 return response.json();
             }).then((data) => {
                 if (data) {
-                    // console.log(data.venues);
+                    console.log(data.venues);
                     this.venues = data.venues;
-                    // console.log(this.venues)
+                    console.log(this.venues)
 
                 } else {
                     this.errormsg = data.msg;
@@ -245,7 +371,7 @@ export default {
                     }
                     return response.json();
                 }).then((data) => {
-                    console.log(data)
+                    // console.log(data)
                     if (data && data.status) {
                         // 
                         // alert("Venue added successfully");
@@ -253,14 +379,14 @@ export default {
                         const {
                             venue_id,
                             admin_id,
-                            venue_location,
+
                         } = data
                         const new_venue = {
                             venue_id,
                             name: this.venueName,
-                            venue_location,
                             admin_id,
                         }
+                        // console.log(new_venue)
 
                         this.venues.push(new_venue);
                         // this.screenOptions.push(screen_options);
@@ -332,37 +458,70 @@ export default {
                     console.log(e);
                 });
         },
+        EditVenue() {
+            // console.log(venueName)
+            const currentVenue = this.venues.find(venue => venue.name === this.venueName);
+            // const currentVenue = this.venueName === venueName;
+            if (!currentVenue) {
+                console.error("Venue not found");
+                return;
+            }
 
-        // loadShows() {
-        //     const currentVenue = this.venues.find((venue) => venue.name === this.venueName);
-        //     if (!currentVenue) {
-        //         console.error('Venue not found.');
-        //         return;
-        //     }
-        //     fetch(`http://127.0.0.1:5000/api/Shows/${currentVenue.venue_id}`, {
-        //         method: "GET",
-        //         headers: {
-        //             "Content-Type": "application/json",
-        //             "Access-Control-Allow-Origin": "*",
-        //             Authorization: "Bearer " + localStorage.getItem("access_token"),
-        //         }
-        //     }).then((response) => {
-        //         if (!response.ok) {
-        //             alert("Response not ok");
-        //         }
-        //         console.log(response);
-        //         return response.json();
-        //     }).then((data) => {
-        //         if (data) {
-        //             console.log("Here's the data");
-        //             this.shows = data.shows;
-        //         } else {
-        //             this.errormsg = data.msg;
-        //         }
-        //     }).catch((e) => {
-        //         console.log(e);
-        //     });
-        // },
+            if (!this.newVenueName && !this.newVenueLocation) {
+                console.error("No changes made");
+                return;
+            }
+            const requestBody = {};
+            if (this.newVenueName) {
+                requestBody.name = this.newVenueName;
+            }
+            if (this.newVenueLocation) {
+                requestBody.venue_location = this.newVenueLocation;
+            }
+
+            fetch(`http://127.0.0.1:5000/api/Venues/${currentVenue.venue_id}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Access-Control-Allow-Origin": "*",
+                        Authorization: "Bearer " + localStorage.getItem("access_token"),
+                    },
+                    body: JSON.stringify(requestBody),
+                })
+                .then((response) => {
+                    if (!response.ok) {
+                        alert("Response not ok");
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    if (data && data.status) {
+                        // Update the venue details in the `venues` array
+                        if (this.newVenueName) {
+                            currentVenue.name = this.newVenueName;
+                        }
+                        if (this.newVenueLocation) {
+                            currentVenue.venue_location = this.newVenueLocation;
+                        }
+                        console.log("Venue updated successfully");
+                    } else {
+                        if (data && data.msg) {
+                            this.errormsg = data.msg;
+                            console.log(this.errormsg);
+                        } else {
+                            this.errormsg = "Unknown error occurred.";
+                            console.log(this.errormsg);
+                        }
+                    }
+                })
+                .catch((e) => {
+                    console.log(e);
+                })
+                .finally(() => {
+                    this.closeEditVenueModal(); // Assuming you have a function to close the modal after editing.
+                });
+        },
+
         addShow() {
             if (this.showName && this.price && this.ShowScreen && this.ShowDateTime && this.ShowSeats) {
                 const currentVenue = this.venues.find(venue => venue.name === this.venueName);
@@ -445,6 +604,92 @@ export default {
                     this.ShowScreenerror = "Please choose the screen number for the show";
                 }
             }
+        },
+        EditShow() {
+            
+            const currentVenue = this.venues.find(venue => {
+                return Array.isArray(venue.shows.shows) &&  venue.shows.shows.some(show => show.name === this.showName);
+            });
+            // const currentVenue = this.venueName === venueName;
+            if (!currentVenue) {
+                console.error("venue not found");
+                return;
+            }
+            // console.log(currentVenue);
+            const currentShow = currentVenue.shows.shows.find(show => show.name === this.showName);
+            // console.log(currentShow);
+            if (!this.newshowName && !this.newprice && !this.newShowDateTime && !this.newShowScreen && !this.newShowSeats) {
+                console.error("No changes made");
+                return;
+            }
+            const requestBody = {};
+            if (this.newshowName) {
+                requestBody.name = this.newshowName;
+            }
+            if (this.newprice) {
+                requestBody.price = this.newprice;
+            }
+            if (this.newShowDateTime) {
+                requestBody.date_time = this.newShowDateTime;
+            }
+            if (this.newShowScreen) {
+                requestBody.show_screen = this.newShowScreen;
+            }
+            if (this.newShowSeats) {
+                requestBody.price = this.newprice;
+            }
+            // console.log(currentShow)
+            fetch(`http://127.0.0.1:5000/api/Shows/${currentShow.show_id}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Access-Control-Allow-Origin": "*",
+                        Authorization: "Bearer " + localStorage.getItem("access_token"),
+                    },
+                    body: JSON.stringify(requestBody),
+                })
+                .then((response) => {
+                    if (!response.ok) {
+                        alert("Response not ok");
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    if (data && data.status) {
+                        // Update the venue details in the `venues` array
+                        if (this.newVenueName) {
+                            currentShow.name = this.newShowName;
+                        }
+                        if (this.newprice) {
+                            currentShow.price = this.newprice;
+                        }
+                        if (this.newShowDateTime) {
+                            currentShow.date_time = this.newShowDateTime;
+                        }
+                        if (this.newShowScreen) {
+                            currentShow.show_screen = this.newShowScreen;
+                        }
+                        if (this.newShowSeats) {
+                            currentShow.seats_available = this.newShowSeats;
+                        }
+                        console.log("Venue updated successfully");
+                    } else {
+                        if (data && data.msg) {
+                            this.errormsg = data.msg;
+                            console.log(this.errormsg);
+                        } else {
+                            this.errormsg = "Unknown error occurred.";
+                            console.log(this.errormsg);
+                        }
+                    }
+                })
+                .catch((e) => {
+                    console.log(e);
+                })
+                .finally(() => {
+                    this.closeEditShowModal();
+                    this.loadvenues(); // Assuming you have a function to close the modal after editing.
+                });
         },
 
     },

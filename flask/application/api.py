@@ -136,6 +136,7 @@ class Venue_api(Resource):
                 venue_data = {
                     'venue_id': v.venue_id,
                     'name': v.name,
+                    'venue_location':v.venue_location,
                     'admin_id': v.admin_id,
                     'shows' : shows
                 }
@@ -176,16 +177,16 @@ class Venue_api(Resource):
 
         form = request.get_json()
         venue_name = form.get('name')
-        seating_capacity = form.get('seating_capacity')
+        venue_location = form.get('venue_location')
 
         if venue_name is not None:
             venue.name = venue_name
-        if seating_capacity is not None:
-            venue.seating_capacity = seating_capacity
+        if venue_location is not None:
+            venue.venue_location = venue_location
 
         db.session.commit()
 
-        return {'status': True, 'msg': 'Venue updated successfully', 'venue_id': venue.venue_id, 'admin_id': venue.admin_id}, 200
+        return {'status': True, 'msg': 'Venue updated successfully', 'venue_id': venue.venue_id, 'admin_id': venue.admin_id, 'venue_location':venue.venue_location}, 200
 
 
     @jwt_required()
@@ -287,6 +288,7 @@ class Shows_api(Resource):
 
         form = request.get_json()
         show_name = form.get('name')
+        show_screen = form.get('show_screen')
         date_time = form.get('date_time')
         seats_available = form.get('seats_available')
         price = form.get('price')
@@ -295,6 +297,8 @@ class Shows_api(Resource):
             show.name = show_name
         if date_time is not None:
             show.date_time = date_time
+        if show_screen is not None:
+            show.show_screen = show_screen
         if seats_available is not None:
             show.seats_available = seats_available
         if price is not None:
