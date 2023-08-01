@@ -11,7 +11,7 @@
                     <!------------------------------------------------------- Venue Header ---------------------------------------------------------------->
                     <div>
                         <button @click="addShowOpenModal(venue.name)" class="btn btn-success btn-lg text-primary mr-2" style="position:relative; "> Add show </button>
-                        <button @click="OpenEditvenueModal(venue.name)" class="btn btn-warning btn-lg text-primary mr-2"> &#128393; </button>
+                        <button @click="OpenEditvenueModal(venue.name,venue.venue_location)" class="btn btn-warning btn-lg text-primary mr-2"> &#128393; </button>
                         <button @click="deleteVenue(venue.name)" class="btn btn-danger btn-lg text-primary"> Del </button>
 
                     </div>
@@ -34,14 +34,14 @@
                         </svg>
                         <div class="card-body">
                             <p class="card-text" style="font-size: 20px;">Screen Number : {{ show.show_screen }}</p>
-                            <!-- <p class="card-text" style="font-size: 20px;">{{ show.show_datetime }}</p> -->
+                            <p class="card-text" style="font-size: 20px;">Price: &#x20B9; {{ show.price }} /-</p>
                             <p class="card-text" style="font-size: 20px;">Seats Available: {{ show.seats_booked }} / {{ show.seats_available }}</p>
 
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button @click="OpenEditShowModal(show.name)" class="btn btn-warning text-primary" type="button">Update</button>
-                            <button class="btn btn-danger text-white mb-3" type="button">Delete</button>
+                            <button @click="OpenEditShowModal(show.name,show.price,show.show_datetime,show.show_screen,show.seats_available)" class="btn btn-warning text-primary" type="button">Update</button>
+                            <button @click="openDeleteShowModal(show.name)" class="btn btn-danger text-white mb-3" type="button">Delete</button>
 
                             <!-- </div> -->
                         </div>
@@ -113,8 +113,7 @@
                             <input class="form-control" type="text" v-model="newVenueName" placeholder="Enter venue name" />
 
                         </div>
-                       
-                        
+
                         <label class="label">
                             <h5> Venue Location </h5>
 
@@ -162,11 +161,11 @@
                             <p v-if="priceerror" style="color: red;">{{ priceerror }}</p>
                         </div>
                         <label class="label">
-                            <h5> Upload Image  </h5>
+                            <h5> Upload Image </h5>
 
                         </label>
                         <div class="control mb-3">
-                            <input @change="uploadImage" class="form-control" type="file"  placeholder="Upload show image" />
+                            <input @change="uploadImage" class="form-control" type="file" placeholder="Upload show image" />
 
                         </div>
                         <label class="label">
@@ -228,11 +227,11 @@
                             <input class="form-control" type="text" v-model="newprice" placeholder="Enter price of each ticket" />
                         </div>
                         <label class="label">
-                            <h5> Upload Image  </h5>
+                            <h5> Upload Image </h5>
 
                         </label>
                         <div class="control mb-3">
-                            <input @change="uploadImage" class="form-control" type="file"  placeholder="Uplaod Show image" />
+                            <input @change="uploadImage" class="form-control" type="file" placeholder="Uplaod Show image" />
 
                         </div>
                         <label class="label">
@@ -265,7 +264,31 @@
             </div>
         </div>
     </div>
+
+    <!----------------------------------------------------- Deleting Shows Modal ----------------------------------------------------------------->
+    <div class="modal fade" :class="{ 'show': DeleteShowModal }" id="DeleteShowModal" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="ShowModalLabel" style="position: fixed;">Delete Show</h5>
+                    <button @click="closeDeleteShowModal" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="field">
+
+                        <h3>Are you sure you want to delete the show? </h3>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success" @click="deleteShow">Yes</button>
+                    <button class="btn btn-danger" data-bs-dismiss="modal" @click="closeDeleteShowModal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<!-- </div> -->
 </template>
 
 <script>
@@ -276,8 +299,8 @@ export default {
     data() {
         return {
             errormsg: '',
-            imagefile:'',
-            newimagefile:'',
+            imagefile: '',
+            newimagefile: '',
             venues: [],
             venueName: '',
             newVenueName: '',
@@ -302,6 +325,7 @@ export default {
             EditVenueModal: false,
             addShowModal: false,
             EditShowModal: false,
+            DeleteShowModal: false,
             ShowSeatserror: '',
             ShowDatetimeerror: '',
 
@@ -312,39 +336,63 @@ export default {
             this.showModal = true;
 
         },
+        closeModal() {
+            this.venueName = '';
+            this.venueLocation = '';
+            this.showModal = false;
+            location.reload()
+        },
         addShowOpenModal(venueName) {
             this.venueName = venueName;
             this.addShowModal = true;
 
         },
-        closeModal() {
-            this.showModal = false;
-            location.reload()
-        },
         closeShowModal() {
             this.addShowModal = false;
             this.venueName = '';
-            location.reload();
+            // location.reload();
         },
-        OpenEditvenueModal(venueName) {
+        OpenEditvenueModal(venueName, venueLocation) {
             console.log(venueName);
-            this.newVenueName = '';
-            this.newVenueLocation = '';
+            this.newVenueName = venueName;
+            this.newVenueLocation = venueLocation;
             this.venueName = venueName;
             this.EditVenueModal = true;
         },
         closeEditVenueModal() {
+            this.newVenueName = '';
+            this.newVenueLocation = '';
             this.EditVenueModal = false;
+
             // location.reload();
         },
-        OpenEditShowModal(showName) {
-            // console.log(showName)
-            this.showName = showName;
+        OpenEditShowModal(showname, showprice, show_datetime, show_screen, seats_available) {
+
+            this.showName = showname;
+            this.newshowName = showname;
+            this.newShowDateTime = show_datetime;
+            this.newShowScreen = show_screen;
+            this.newShowSeats = seats_available;
+            this.newprice = showprice;
             this.EditShowModal = true;
         },
         closeEditShowModal() {
+            this.newprice = '';
+            this.newShowDateTime = '';
+            this.newShowScreen = '';
+            this.newShowSeats = 0;
+            this.newshowName = '';
+            this.newimagefile = '';
+            this.showName='';
             this.EditShowModal = false;
-            // location.reload();
+        },
+        openDeleteShowModal(showname) {
+            this.showName = showname;
+            this.DeleteShowModal = true;
+        },
+        closeDeleteShowModal() {
+            this.showName = '';
+            this.DeleteShowModal = false;
         },
         uploadImage(event) {
             let file = event.target.files[0];
@@ -437,6 +485,7 @@ export default {
                     console.log(e);
                 }).finally(() => {
                     this.closeModal();
+                    this.loadvenues();
                 })
             } else {
                 if (!this.venueName) {
@@ -488,7 +537,9 @@ export default {
                 })
                 .catch((e) => {
                     console.log(e);
-                });
+                }).finally(() => {
+                    this.loadvenues();
+                })
         },
         EditVenue() {
             // console.log(venueName)
@@ -550,7 +601,8 @@ export default {
                     console.log(e);
                 })
                 .finally(() => {
-                    this.closeEditVenueModal(); // Assuming you have a function to close the modal after editing.
+                    this.closeEditVenueModal();
+                    this.loadvenues(); // Assuming you have a function to close the modal after editing.
                 });
         },
 
@@ -602,13 +654,6 @@ export default {
                             show_datetime
 
                         };
-                        // // console.log(this.venues);
-                        // const idx = this.venues.filter((e, i) => {
-                        //     return e.venue_id === currentVenue.venue_id ? i : -1;
-                        // })
-                        // // this.venues.filter(v => v.venue_id === currentVenue.venue_id).shows.shows.push(newShow);
-                        // this.venues[idx].shows.show.push(newShow);
-                        // // this.venues.shows.push(newShow);
                         currentVenue.shows.push(newShow);
                         console.log('New show added:', newShow);
                         // window.reload();
@@ -625,6 +670,7 @@ export default {
                     console.log(e);
                 }).finally(() => {
                     this.closeShowModal();
+                    this.loadvenues();
                 });
             } else {
                 if (!this.showName) {
@@ -639,9 +685,9 @@ export default {
             }
         },
         EditShow() {
-            
+
             const currentVenue = this.venues.find(venue => {
-                return Array.isArray(venue.shows.shows) &&  venue.shows.shows.some(show => show.name === this.showName);
+                return Array.isArray(venue.shows.shows) && venue.shows.shows.some(show => show.name === this.showName);
             });
             // const currentVenue = this.venueName === venueName;
             if (!currentVenue) {
@@ -650,7 +696,7 @@ export default {
             }
             // console.log(currentVenue);
             const currentShow = currentVenue.shows.shows.find(show => show.name === this.showName);
-            // console.log(currentShow);
+            console.log(currentShow);
             if (!this.newshowName && !this.newprice && !this.newShowDateTime && !this.newShowScreen && !this.newShowSeats && !this.newimagefile) {
                 console.error("No changes made");
                 return;
@@ -669,7 +715,7 @@ export default {
                 requestBody.show_screen = this.newShowScreen;
             }
             if (this.newShowSeats) {
-                requestBody.price = this.newprice;
+                requestBody.seats_available = this.newShowSeats;
             }
             if (this.newimagefile) {
                 requestBody.imagefile = this.newimagefile;
@@ -726,16 +772,69 @@ export default {
                     console.log(e);
                 })
                 .finally(() => {
+                    this.showName ='';
                     this.closeEditShowModal();
                     this.loadvenues(); // Assuming you have a function to close the modal after editing.
                 });
         },
+        deleteShow() {
+            const currentVenue = this.venues.find(venue => {
+                return Array.isArray(venue.shows.shows) &&  venue.shows.shows.some(show => show.name === this.showName);
+            });
+            // const currentVenue = this.venueName === venueName;
+            if (!currentVenue) {
+                console.error("venue not found");
+                return;
+            }
+            // console.log(currentVenue);
+            const currentShow = currentVenue.shows.shows.find(show => show.name === this.showName);
+            console.log(currentShow);
+
+            fetch(`http://127.0.0.1:5000/api/Shows/edit/${currentShow.show_id}`, {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Access-Control-Allow-Origin": "*",
+                        Authorization: "Bearer " + localStorage.getItem("access_token"),
+                    }
+                })
+                .then((response) => {
+                    if (!response.ok) {
+                        alert("Response not ok");
+                    }
+                    return response.json();
+                })
+                .then((data) => {
+                    if (data && data.status) {
+                        // Remove the deleted venue from the `venues` array
+                        const index = currentVenue.shows.shows.indexOf(currentShow);
+                        if (index !== -1) {
+                            currentVenue.shows.shows.splice(index, 1);
+                        }
+                        console.log('Venue deleted successfully');
+                    } else {
+                        if (data && data.msg) {
+                            this.errormsg = data.msg;
+                            console.log(this.errormsg);
+                        } else {
+                            this.errormsg = "Unknown error occurred.";
+                            console.log(this.errormsg);
+                        }
+                    }
+                })
+                .catch((e) => {
+                    console.log(e);
+                })
+                .finally(() => {
+                    this.closeDeleteShowModal();
+                    this.loadvenues(); // Assuming you have a function to close the modal after editing.
+                });
+        }
 
     },
 
     async mounted() {
         this.loadvenues();
-        // this.loadShows();
 
     }
 }
@@ -778,8 +877,8 @@ export default {
 }
 
 .plus {
-  position: fixed;
-  bottom: 5%;
-  right: 2%;
+    position: fixed;
+    bottom: 5%;
+    right: 2%;
 }
 </style>
