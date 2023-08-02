@@ -40,7 +40,7 @@
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button @click="OpenEditShowModal(show.name,show.price,show.show_datetime,show.show_screen,show.seats_available)" class="btn btn-warning text-primary" type="button">Update</button>
+                            <button @click="OpenEditShowModal(show.name,show.price,show.show_datetime,show.show_screen,show.seats_available, show.imagefile)" class="btn btn-warning text-primary" type="button">Update</button>
                             <button @click="openDeleteShowModal(show.name)" class="btn btn-danger text-white mb-3" type="button">Delete</button>
 
                             <!-- </div> -->
@@ -293,6 +293,7 @@
 
 <script>
 // import router from '@/router';
+import { toRaw } from 'vue';
 
 export default {
     name: "AdminDashboard",
@@ -300,7 +301,6 @@ export default {
         return {
             errormsg: '',
             imagefile: '',
-            newimagefile: '',
             venues: [],
             venueName: '',
             newVenueName: '',
@@ -366,7 +366,7 @@ export default {
 
             // location.reload();
         },
-        OpenEditShowModal(showname, showprice, show_datetime, show_screen, seats_available) {
+        OpenEditShowModal(showname, showprice, show_datetime, show_screen, seats_available, image_file) {
 
             this.showName = showname;
             this.newshowName = showname;
@@ -374,6 +374,7 @@ export default {
             this.newShowScreen = show_screen;
             this.newShowSeats = seats_available;
             this.newprice = showprice;
+            this.imagefile = image_file;
             this.EditShowModal = true;
         },
         closeEditShowModal() {
@@ -382,7 +383,7 @@ export default {
             this.newShowScreen = '';
             this.newShowSeats = 0;
             this.newshowName = '';
-            this.newimagefile = '';
+            this.imagefile = '';
             this.showName='';
             this.EditShowModal = false;
         },
@@ -400,7 +401,10 @@ export default {
             let that = this
             reader.onloadend = function () {
                 // console.log('RESULT', reader.result)
-                that.imagefile = reader.result
+
+                // that.imagefile = toRaw(reader.result)
+                that.imagefile = toRaw(reader.result)
+                console.log(that.imagefile)
             }
             reader.readAsDataURL(file);
         },
@@ -697,7 +701,7 @@ export default {
             // console.log(currentVenue);
             const currentShow = currentVenue.shows.shows.find(show => show.name === this.showName);
             console.log(currentShow);
-            if (!this.newshowName && !this.newprice && !this.newShowDateTime && !this.newShowScreen && !this.newShowSeats && !this.newimagefile) {
+            if (!this.newshowName && !this.newprice && !this.newShowDateTime && !this.newShowScreen && !this.newShowSeats && !this.imagefile) {
                 console.error("No changes made");
                 return;
             }
@@ -717,8 +721,9 @@ export default {
             if (this.newShowSeats) {
                 requestBody.seats_available = this.newShowSeats;
             }
-            if (this.newimagefile) {
-                requestBody.imagefile = this.newimagefile;
+            if (this.imagefile) {
+                // requestBody.imagefile = this.imagefile;
+                requestBody.imagefile = this.imagefile;
             }
             // console.log(currentShow)
             fetch(`http://127.0.0.1:5000/api/Shows/edit/${currentShow.show_id}`, {
@@ -754,8 +759,9 @@ export default {
                         if (this.newShowSeats) {
                             currentShow.seats_available = this.newShowSeats;
                         }
-                        if (this.newimagefile) {
-                            currentShow.imagefile = this.newimagefile;
+                        if (this.imagefile) {
+                            // currentShow.imagefile = this.imagefile;
+                            currentShow.imagefile = this.imagefile;
                         }
                         console.log("Show updated successfully");
                     } else {
