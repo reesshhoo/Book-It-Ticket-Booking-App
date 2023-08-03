@@ -1,0 +1,286 @@
+<template>
+<div class="dashboard">
+    <div class="container-fluid">
+        <!------------------------------------------------------- Displaying venues -------------------------------------------------------------->
+        <div class="row">
+            <div class="row-3 card border-primary mb-3 mt-5" v-for="venue in venues" :key="venue.venue_id">
+                <div class="d-flex justify-content-between  align-items-center" style=" border-bottom:3px solid rgba(13, 12, 12, 0.537); margin-bottom: 15px;">
+                    <h2 class="text-primary text-dark" style="margin-top:15px;">{{ venue.name }} <br />
+                        <h6 class="card-subtitle text-muted mt-0.7" style="font-size: 20px; margin-left: 2px;"> {{ venue.venue_location }}</h6>
+                    </h2>
+                </div>
+
+                <!----------------------------------------------------- Displaying Shows ----------------------------------------------------------------->
+
+                <div class="flex row mb-2">
+                    <div v-for="show in venue.shows" :key="show.show_id" class="card border-primary mb-2 pb-4" style="max-width: 20rem; margin-top: 13px; margin-left:15px">
+
+                        <div class="card-header" style="font-size: 32px;">{{show.name}}</div>
+                        <div class="card-body">
+                            <h4 class="card-title"></h4>
+                            <h6 class="card-subtitle text-muted" style="font-size: 20px;">{{ show.show_datetime }}</h6>
+                        </div>
+                        <img v-if="show.imagefile" :src="show.imagefile">
+                        <svg v-else class="d-block user-select-none" width="100%" height="200" aria-label="Placeholder: Image cap" focusable="false" role="img" preserveAspectRatio="xMidYMid slice" viewBox="0 0 318 180" style="font-size:1.125rem;text-anchor:middle">
+                            <rect width="100%" height="100%" fill="#868e96"></rect>
+                            <text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text>
+                        </svg>
+                        <div class="card-body">
+                            <p class="card-text" style="font-size: 20px;">Screen Number : {{ show.show_screen }}</p>
+                            <p class="card-text" style="font-size: 20px;">Price: &#x20B9; {{ show.price }} /-</p>
+                            <p class="card-text" style="font-size: 20px;">Seats Available: {{ show.seats_booked }} / {{ show.seats_available }}</p>
+
+                        </div>
+
+                        <div class="d-grid gap-2">
+                            <button @click="OpenBookShowModal(show.name,show.show_datetime,show.price,show.seats_available,show.seats_booked, show.imagefile)" class="btn btn-success text-primary" type="button">Book Now!</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!----------------------------------------------------- Booking Ticket Modal----------------------------------------------------------------->
+
+    <div class="modal fade" :class="{ 'show': BookModal }" id="VenueModal" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="BookModalLabel" style=" font-size:32px">{{ showName }}</h5>
+                    <button @click="closeBookModal" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    <div class="field">
+                        <div class="card mb-5" width=100% height="80%">
+                            <img :src=this.imagefile>
+                        </div>
+                        <div class="label">
+
+                            <h5> Show Price : <span class="ml-3">&#x20B9; {{ showPrice  }} </span></h5>
+                        </div>
+                        <div class="label">
+                            <h5> Seats Available : <span class="ml-3">{{seatsBooked}} / {{ seatsAvailable }} </span> </h5>
+                        </div>
+                        <div class="label">
+                            <h5> Show Date: <span class="ml-3"> {{ showDateTime }} </span> </h5>
+                        </div>
+                        <br>
+                        <label class="label">
+                            <h5> No. of People </h5>
+                        </label>
+                        <div class="control mb-3">
+                            <input class="form-control" type="number" v-model="NumberOfPeople" placeholder="How many tickets do you need?" />
+                            <p v-if="NumberOfPeopleerror" style="color: red;">{{ NumberOfPeopleerror }}</p>
+                        </div>
+
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success" @click="OpenPaymentModal">Add Venue</button>
+                    <button class="btn btn-danger" data-bs-dismiss="modal" @click="closeModal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" :class="{ 'show': PaymentModal }" id="PaymentModal" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <!-- <h5 class="modal-title" id="ShowModalLabel" style="position: fixed;">Delete Show</h5> -->
+                    <button @click="ClosePaymentModal" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    
+
+                        <h4> Your Total Amount Payable is : <span class="ml-3">&#x20B9; {{ showPrice  * NumberOfPeople}} </span></h4>
+                   
+                    <div class="field">
+
+                        <h4>Confirm Payment?  </h4>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success" @click="BookShow">Pay</button>
+                    <button class="btn btn-danger" data-bs-dismiss="modal" @click="ClosePaymentModal">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+</template>
+
+<script>
+// import router from '@/router';
+
+export default {
+    name: "AdminDashboard",
+    data() {
+        return {
+            errormsg: '',
+            imagefile: '',
+            venues: [],
+            NumberOfPeople: null,
+            NumberOfPeopleerror: '',
+            BookModal: false,
+            PaymentModal: false,
+            showName: '',
+            showDateTime: '',
+            showPrice: '',
+            seatsAvailable: 0,
+            seatsBooked: 0,
+        }
+    },
+    methods: {
+
+        OpenBookShowModal(showname, show_datetime, showprice, seats_available, seats_booked, imagefile) {
+            this.showName = showname;
+            this.showDateTime = show_datetime;
+            this.showPrice = showprice;
+            this.seatsAvailable = seats_available;
+            this.seatsBooked = seats_booked;
+            this.imagefile = imagefile;
+            this.BookModal = true;
+
+        },
+        closeBookModal() {
+            this.showName = null;
+            this.showDateTime = null;
+            this.showPrice = null;
+            this.seatsAvailable = null;
+            this.seatsBooked = null;
+            this.NumberOfPeople = null;
+            this.NumberOfPeopleerror = null;
+            this.BookModal = false;
+        },
+        OpenPaymentModal() {
+            this.PaymentModal = true;
+        },
+        ClosePaymentModal() {
+            this.PaymentModal = false;
+            this.closeBookModal();
+        },
+        loadvenues() {
+            fetch("http://127.0.0.1:5000/api/User", {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Access-Control-Allow-Origin": "*",
+                    Authorization: "Bearer " + localStorage.getItem("access_token"),
+                }
+            }).then((response) => {
+                if (!response.ok) {
+                    console.error("Response not ok");
+                }
+                return response.json();
+            }).then((data) => {
+                if (data) {
+                    console.log(data.venues);
+                    this.venues = data.venues;
+                    console.log(this.venues)
+
+                } else {
+                    this.errormsg = data.msg;
+                }
+            }).catch((e) => {
+                console.log(e);
+            });
+        },
+        BookShow() {
+        if (this.NumberOfPeople) {
+        if (this.NumberOfPeople>0) {
+            const currentVenue = this.venues.find(venue => {
+                return Array.isArray(venue.shows) && venue.shows.some(show => show.name === this.showName);
+            });
+            // const currentVenue = this.venueName === venueName;
+            if (!currentVenue) {
+                console.error("venue not found");
+                return;
+            }
+            // console.log(currentVenue);
+            const currentShow = currentVenue.shows.find(show => show.name === this.showName);
+            console.log(currentShow);
+               
+            fetch(`http://127.0.0.1:5000/api/User/${currentShow.show_id}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Access-Control-Allow-Origin": "*",
+                        Authorization: "Bearer " + localStorage.getItem("access_token"),
+                    },
+                    body: JSON.stringify({
+                        tickets: this.NumberOfPeople,
+                    }),
+                }).then((response) => {
+                    if (!response.ok) {
+                        alert("Insuffiecient Seats");
+                        // console.log('Response not ok');
+                        // console.log(response);
+
+                    }
+                    return response.json();
+                }).then((data) => {
+                    if (data) {
+                        console.log(data);
+                        // this.venues = data.venues;
+                        // console.log(this.venues)
+
+                    } else {
+                        this.errormsg = data.msg;
+                    }
+                }).catch((e) => {
+                    console.log(e);
+                })
+                .finally(() => {
+                    this.ClosePaymentModal();
+                    this.loadvenues();
+                    this.NumberOfPeople = null;
+                });
+        }
+        else{
+            this.NumberOfPeopleerror = 'Please enter valid no. of seats';
+            alert(this.NumberOfPeopleerror);
+        }
+    }
+    }
+    },
+    mounted() {
+        this.loadvenues();
+    },
+   
+
+}
+</script>
+
+<style scoped>
+.dashboard {
+    position: relative;
+}
+
+.modal {
+    display: none;
+    background: rgba(0, 0, 0, 0.5);
+}
+
+.show {
+    display: block;
+
+}
+
+.row {
+    display: flex;
+    flex-wrap: wrap;
+    margin: -0.5rem;
+}
+
+.col-md-4 {
+    padding: 0.5rem;
+}
+
+.plus {
+    position: fixed;
+    bottom: 5%;
+    right: 2%;
+}
+</style>

@@ -124,15 +124,8 @@ class Venue_api(Resource):
             # print(screens)
             for v in venue:
                 shows = Shows_api.get(self, venue_id=v.venue_id)
-                # print(shows)
                 if shows==None:
                     shows = []
-                # try:
-                #     shows = list(Shows_api.get(self, venue_id=v.venue_id))
-                #     if isinstance(shows, dict) and shows.get('status') is False:
-                #         shows = []  # Empty list when the API returns a 400 status code
-                # except:
-                #     shows = []
                 venue_data = {
                     'venue_id': v.venue_id,
                     'name': v.name,
@@ -149,8 +142,6 @@ class Venue_api(Resource):
         admin = Admin.query.filter_by(email=current_admin).first()
         if not admin :
             return {'status': False, 'msg' : 'User not found'}, 400
-        # print("testing post method")
-        # return "",200
         form = request.get_json()
         venue_name = form.get('name')
         venue_location = form.get('venue_location')
@@ -209,7 +200,7 @@ class Venue_api(Resource):
 
         return {'status': True, 'msg': 'Venue deleted successfully', 'venue_id': venue.venue_id, 'admin_id': venue.admin_id}, 200
 
-#<-----------------------------------------------------SHOW VENUE API------------------------------------------------------------------------------>
+#<-----------------------------------------------------ADMIN SHOW VENUE API------------------------------------------------------------------------------>
 
 class Shows_api(Resource):
 
@@ -332,3 +323,77 @@ class Shows_api(Resource):
         db.session.commit()
 
         return {'status': True, 'msg': 'Show deleted successfully', 'show_id': show.show_id}, 200
+
+
+#<-----------------------------------------------------USER VENUE&SHOW VENUE API------------------------------------------------------------------------------>
+class User_api(Resource):
+
+    @jwt_required()
+    def get(self):
+        # print("Reaching here")
+        current_user = get_jwt_identity()
+        user = User.query.filter_by(email=current_user).first()
+        if not user:
+            return {'status': False, 'msg': 'User not found'}, 400
+
+        venues = Venue.query.all()
+        if not venues:
+            return {'status': False, 'msg': 'No venue added yet'},200
+
+        data = []
+        for v in venues:  # Use 'v' instead of 'venue'
+            shows = Show.query.filter_by(venue_id=v.venue_id).all() 
+            shows_data = []
+            for show in shows:
+                show_data = {
+                    'show_id': show.show_id,
+                    'name': show.name,
+                    'show_datetime': convert_datetime_to_str(show.date_time),
+                    'seats_booked': show.seats_booked,
+                    'seats_available': show.seats_available,
+                    'show_screen': show.show_screen,
+                    'imagefile': show.image,
+                    'price': show.price
+                }
+                shows_data.append(show_data)
+
+            venue_data = {
+                'venue_id': v.venue_id,  # Use 'v.venue_id' instead of 'venue.venue_id'
+                'name': v.name,  # Use 'v.name' instead of 'venue.name'
+                'venue_location': v.venue_location,  # Use 'v.venue_location' instead of 'venue.venue_location'
+                'admin_id': v.admin_id,  # Use 'v.admin_id' instead of 'venue.admin_id'
+                'shows': shows_data
+            }
+            data.append(venue_data)
+
+        return {"venues": data}
+    
+    @jwt_required()
+    def put(self,show_id):
+        current_user = get_jwt_identity()
+        user = User.query.filter_by(email=current_user).first()
+        if not user:
+            return {'status': False, 'msg': 'User not found'}, 400
+
+        s = Show.query.filter_by(show_id=show_id).first()
+        if s is None:
+                {'status': False, 'msg': 'Show not found'}, 400
+        form =request.get_json()
+        tickets = form.get('tickets')
+        if tickets is not None and tickets > 0:
+            if (s.seats_available >= tickets):
+                s.seats_booked = s.seats_booked + tickets
+                if (s.seats_booked >= s.seats_available) == False:
+                    db.session.commit()
+                else:
+                    return {'status': False, 'msg': 'Not enough seats available'}, 400
+                new_booking = Booking(user_id=user.user_id, show_id=s.show_id,tickets=tickets)
+                db.session.add(new_booking)
+                db.session.commit()
+                return {'status': True, 'msg': 'Booking successful'}, 200
+            else:
+                return {'status': False, 'msg': 'Invalid no. of seats'}, 400
+        
+        else:
+            return {'status': False, 'msg': 'Invalid number of tickets'}, 400
+

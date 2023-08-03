@@ -42,7 +42,7 @@ class Show(db.Model):
 
 class Booking(db.Model):
     __tablename__ = 'bookings'
-    booking_id = db.Column(db.Integer, primary_key=True)
+    booking_id = db.Column(db.Integer, primary_key=True,autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'), nullable=False)
     show_id = db.Column(db.Integer, db.ForeignKey('shows.show_id'), nullable=False)
     tickets = db.Column(db.Integer, nullable=False)

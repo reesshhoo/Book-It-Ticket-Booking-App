@@ -5,6 +5,8 @@ import UserView from '../views/UserView.vue'
 import RegisterComponent from '../components/RegisterComponent.vue'
 import LoginComponent from '../components/LoginComponent.vue'
 import AdminSummary from '../components/AdminSummary.vue'
+import UserDashboard from '../components/UserDashboard.vue'
+import UserBookings from '../components/UserBookings.vue'
 
 const routes = [
   {
@@ -31,6 +33,17 @@ const routes = [
     path: '/AdminSummary',
     name: 'AdminSummary',
     component: AdminSummary
+  },
+  {
+    path: '/UserDashboard',
+    name: 'UserDashboard',
+    component: UserDashboard
+  },
+  
+  {
+    path: '/User_Bookings',
+    name: 'UserBookings',
+    component: UserBookings
   },
   
 ]

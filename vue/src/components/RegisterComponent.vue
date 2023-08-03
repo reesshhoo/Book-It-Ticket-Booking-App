@@ -47,10 +47,11 @@
 
                                 <label class="mt-2">Confirm Password</label><br>
                                 <input v-model="confirmpassword" type="password" class="form-control">
-                                <p v-if="passworderror" style="color: red;">{{ passworderror }}</p><br>
+                                <!-- <p v-if="passworderror" style="color: red;">{{ passworderror }}</p> -->
+                                <p v-if="confirmpassworderror" style="color: red;">{{ confirmpassworderror }}</p><br>
                                 <div class="form-check">
                                     <input class="form-check-input" type="radio" v-model="role" name="userradio" id="user"
-                                        value="user" checked="">
+                                        value="user">
                                     <label class="form-check-label" for="user">
                                         I want to register as a user.
                                     </label>
@@ -62,6 +63,7 @@
                                     </label>
                                 </span>
                                 </div>
+                                <p v-if="roleerror" style="color: red;">{{ roleerror }}</p>
                                 <br>
 
                                 <div class="d-grid gap-2">
@@ -80,7 +82,6 @@
 </template>
 
 <script>
-// import { required, minLength, email, sameAs } from 'vuelidate/lib/validators';
 import router from "@/router";
 
 export default {
@@ -92,20 +93,16 @@ export default {
             confirmpassword: '',
             emailerror: '',
             passworderror: '',
+            confirmpassworderror: '',
             nameerror: '',
-            role: 'user',
+            role: '',
+            roleerror:'',
             errorMessage: '',
         }
     },
-    // validations: {
-    //     name: { required },
-    //     email: { required, email },
-    //     password: { required, minLength: minLength(6) },
-    //     confirmpassword: { sameAsPassword: sameAs('password') }
-    // },
     methods: {
         submitForm: function () {
-            if (this.email && this.password && this.confirmpassword) {
+            if (this.email && this.name && this.password && this.confirmpassword && this.role) {
                 if (!this.isValidEmail(this.email)) {
                     this.emailerror = "Please enter a valid email address";
                     return;
@@ -146,6 +143,7 @@ export default {
                         this.name = null;
                         this.email = null;
                         this.password = null;
+                        this.confirmpassword = null;
                         this.errorMessage = data.msg;
 
                     }
@@ -158,12 +156,35 @@ export default {
                 if (!this.email) {
                     this.emailerror = "Please enter email";
                 }
+                else if (!this.isValidEmail(this.email)) {
+                    this.emailerror = "Please enter a valid email address";
+                }
+                else{
+                    this.emailerror = "";
+
+                }
+
                 if (!this.password) {
                     this.passworderror = "Please enter password";
                 }
+                
+                if (!this.confirmpassword) {
+                    this.confirmpassworderror = "Please enter password again";
+                }
+                
                 if (!this.name) {
                     this.nameerror = "Please enter name";
                 }
+                
+                if (!this.role) {
+                    this.roleerror = "Please select your role";
+                }
+                
+                if (this.password !== this.confirmpassword) {
+                    this.passworderror = 'Passwords do not match';
+                    this.confirmpassworderror = 'Passwords do not match';
+                }
+                
                 return;
             }
         },
@@ -186,20 +207,3 @@ export default {
 
 }
 </style>
-
-
-<!-- <div class="container">
-    <header>
-
-        <h1>Notes </h1>
-        <button @click="showModal = true">+</button>
-    </header>
-    <div class="card-container">
-
-        <div v-for="note in notes" :key="note.id" class="card" :style="{backgroundColor : note.backgroundColor}">
-            <p class="main-text">{{ note.text }}</p>
-            <p class="date">{{ note.date.toString() }}</p>
-        </div>
-
-    </div>
-</div> -->

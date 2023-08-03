@@ -10,7 +10,7 @@
                     </h2>
                     <!------------------------------------------------------- Venue Header ---------------------------------------------------------------->
                     <div>
-                        <button @click="addShowOpenModal(venue.name)" class="btn btn-success btn-lg text-primary mr-2" style="position:relative; "> Add show </button>
+                        <button @click="addShowOpenModal(venue.name,venue.venue_location)" class="btn btn-success btn-lg text-primary mr-2" style="position:relative; "> Add show </button>
                         <button @click="OpenEditvenueModal(venue.name,venue.venue_location)" class="btn btn-warning btn-lg text-primary mr-2"> &#128393; </button>
                         <button @click="deleteVenue(venue.name)" class="btn btn-danger btn-lg text-primary"> Del </button>
 
@@ -180,7 +180,7 @@
                             <h5> Seats Available</h5>
                         </label>
                         <div class="control mb-3">
-                            <input class="form-control" v-model="ShowSeats" label="seats" placeholder="Seats open for booking" />
+                            <input class="form-control" v-model="ShowSeats" type="number" label="seats" placeholder="Seats open for booking" />
                             <p v-if="ShowSeatserror" style="color: red;">{{ ShowSeatserror }}</p>
                         </div>
 
@@ -245,7 +245,7 @@
                             <h5> Seats Available</h5>
                         </label>
                         <div class="control mb-3">
-                            <input class="form-control" v-model="newShowSeats" label="seats" placeholder="Seats open for booking" />
+                            <input class="form-control" v-model="newShowSeats" type="number" label="seats" placeholder="Seats open for booking" />
                         </div>
 
                         <label class="label">
@@ -293,7 +293,9 @@
 
 <script>
 // import router from '@/router';
-import { toRaw } from 'vue';
+import {
+    toRaw
+} from 'vue';
 
 export default {
     name: "AdminDashboard",
@@ -311,11 +313,11 @@ export default {
             newshowName: '',
             newprice: '',
             newShowScreen: '',
-            newShowSeats: 0,
+            newShowSeats: null,
             newShowDateTime: '',
             showName: '',
             ShowScreen: '',
-            ShowSeats: 0,
+            ShowSeats: null,
             ShowDateTime: '',
             ShowNameerror: '',
             ShowScreenerror: '',
@@ -342,13 +344,19 @@ export default {
             this.showModal = false;
             location.reload()
         },
-        addShowOpenModal(venueName) {
+        addShowOpenModal(venueName,venuelocation) {
             this.venueName = venueName;
+            this.venueLocation = venuelocation;
             this.addShowModal = true;
 
         },
         closeShowModal() {
             this.addShowModal = false;
+            this.showName = null;
+            this.price = null;
+            this.ShowScreen = null;
+            this.ShowSeats = null;
+            this.ShowDateTime = null;
             this.venueName = '';
             // location.reload();
         },
@@ -369,9 +377,12 @@ export default {
         OpenEditShowModal(showname, showprice, show_datetime, show_screen, seats_available, image_file) {
 
             this.showName = showname;
+            this.ShowDateTime = show_datetime;
             this.newshowName = showname;
             this.newShowDateTime = show_datetime;
+            this.ShowScreen = show_screen;
             this.newShowScreen = show_screen;
+            this.ShowSeats = seats_available;
             this.newShowSeats = seats_available;
             this.newprice = showprice;
             this.imagefile = image_file;
@@ -384,7 +395,7 @@ export default {
             this.newShowSeats = 0;
             this.newshowName = '';
             this.imagefile = '';
-            this.showName='';
+            this.showName = '';
             this.EditShowModal = false;
         },
         openDeleteShowModal(showname) {
@@ -400,11 +411,8 @@ export default {
             let reader = new FileReader();
             let that = this
             reader.onloadend = function () {
-                // console.log('RESULT', reader.result)
-
-                // that.imagefile = toRaw(reader.result)
                 that.imagefile = toRaw(reader.result)
-                console.log(that.imagefile)
+                // console.log(that.imagefile)
             }
             reader.readAsDataURL(file);
         },
@@ -612,12 +620,13 @@ export default {
 
         addShow() {
             if (this.showName && this.price && this.ShowScreen && this.ShowDateTime && this.ShowSeats) {
-                const currentVenue = this.venues.find(venue => venue.name === this.venueName);
-                console.log(currentVenue.venue_id);
+                const currentVenue = this.venues.find(venue => venue.name === this.venueName && venue.venue_location === this.venueLocation);
+                console.log(currentVenue.venue_location);
                 if (!currentVenue) {
                     console.error('Venue not found.');
                     return;
                 }
+                console.log(currentVenue.venue_id);
 
                 fetch(`http://127.0.0.1:5000/api/Shows/${currentVenue.venue_id}`, {
                     method: "POST",
@@ -691,8 +700,9 @@ export default {
         EditShow() {
 
             const currentVenue = this.venues.find(venue => {
-                return Array.isArray(venue.shows.shows) && venue.shows.shows.some(show => show.name === this.showName);
+                return Array.isArray(venue.shows.shows) && venue.shows.shows.some(show => show.name === this.showName && show.show_screen===this.ShowScreen && show.seats_available === this.ShowSeats);
             });
+
             // const currentVenue = this.venueName === venueName;
             if (!currentVenue) {
                 console.error("venue not found");
@@ -701,6 +711,7 @@ export default {
             // console.log(currentVenue);
             const currentShow = currentVenue.shows.shows.find(show => show.name === this.showName);
             console.log(currentShow);
+            // console.log(currentShow);
             if (!this.newshowName && !this.newprice && !this.newShowDateTime && !this.newShowScreen && !this.newShowSeats && !this.imagefile) {
                 console.error("No changes made");
                 return;
@@ -778,14 +789,14 @@ export default {
                     console.log(e);
                 })
                 .finally(() => {
-                    this.showName ='';
+                    this.showName = '';
                     this.closeEditShowModal();
                     this.loadvenues(); // Assuming you have a function to close the modal after editing.
                 });
         },
         deleteShow() {
             const currentVenue = this.venues.find(venue => {
-                return Array.isArray(venue.shows.shows) &&  venue.shows.shows.some(show => show.name === this.showName);
+                return Array.isArray(venue.shows.shows) && venue.shows.shows.some(show => show.name === this.showName);
             });
             // const currentVenue = this.venueName === venueName;
             if (!currentVenue) {
