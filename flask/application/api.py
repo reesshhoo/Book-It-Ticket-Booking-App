@@ -15,13 +15,20 @@ def is_screen_available(venue_id, show_screen, date_time):
     print(date_time, type(date_time))
     
     print(date_time)
-    overlapping_show = Show.query.filter(
-        Show.venue_id == venue_id,
-        Show.show_screen== show_screen,
-        Show.date_time >= date_time,
-        Show.date_time < date_time + timedelta(hours=3)  # Assuming shows are 3 hours long
-    ).first()
-    return overlapping_show is None
+    if date_time > (datetime.now() + timedelta(hours=5)):
+        
+        show = Show.query.filter_by(venue_id = venue_id,show_screen= show_screen).first()
+        if show is not None:
+            if date_time > (show.date_time + timedelta(hours=3)):
+                overlapping_show = None
+            else:
+                overlapping_show = show
+            print('its ok')
+            return overlapping_show is None
+        else:
+            return True
+    else: 
+        return False
 
 def convert_to_datetime(date_time):
     format_data = "%Y-%m-%dT%H:%M"
@@ -193,6 +200,9 @@ class Venue_api(Resource):
         
         shows = Show.query.filter_by(venue_id=venue_id).all()
         for show in shows:
+            booking = Booking.query.filter_by(show_id=show.show_id).all()
+            for b in booking:
+                db.session.delete(booking)
             db.session.delete(show)
 
         db.session.delete(venue)
@@ -222,6 +232,7 @@ class Shows_api(Resource):
 
         shows_data = []
         for show in shows:
+
             show_data = {
                 'show_id': show.show_id,
                 'name': show.name,
@@ -230,7 +241,8 @@ class Shows_api(Resource):
                 'seats_available': show.seats_available,
                 'show_screen': show.show_screen,
                 'imagefile': show.image,
-                'price': show.price
+                'price': show.price,
+                'tags': show.tags
             }
             shows_data.append(show_data)
 
@@ -253,11 +265,12 @@ class Shows_api(Resource):
         seats_available = form.get('show_seats')
         price = form.get('price')
         show_screen = form.get('show_screen')
+        tags = form.get('tags')
         image = form.get('imagefile')
         date_time = convert_to_datetime(date_time)
 
         if is_screen_available(venue_id, show_screen, date_time):
-            new_show = Show(name=show_name, date_time=date_time, seats_available=seats_available, price=price, venue_id=venue_id, show_screen=show_screen, image=image)
+            new_show = Show(name=show_name, date_time=date_time, seats_available=seats_available, price=price, venue_id=venue_id, show_screen=show_screen, image=image,tags=tags)
             db.session.add(new_show)
             db.session.commit()
             return {'status': True, 'msg': 'New show added successfully', 'show_id': new_show.show_id}, 200
@@ -285,6 +298,7 @@ class Shows_api(Resource):
         date_time = form.get('date_time')
         seats_available = form.get('seats_available')
         price = form.get('price')
+        tags = form.get('tags')
         image = form.get('imagefile')
         date_time = convert_to_datetime(date_time)
         if show_name is not None:
@@ -299,6 +313,8 @@ class Shows_api(Resource):
             show.price = price
         if image is not None:
             show.image = image
+        if tags is not None:
+            show.tags = tags
 
         db.session.commit()
 
@@ -318,6 +334,10 @@ class Shows_api(Resource):
         venue = Venue.query.filter_by(venue_id=show.venue_id, admin_id=admin.admin_id).first()
         if not venue:
             return {'status': False, 'msg': 'Venue not found'}, 400
+
+        booking = Booking.query.filter_by(show_id=show.show_id).all()
+        for b in booking:
+            db.session.delete(b)
 
         db.session.delete(show)
         db.session.commit()
@@ -345,17 +365,18 @@ class User_api(Resource):
             shows = Show.query.filter_by(venue_id=v.venue_id).all() 
             shows_data = []
             for show in shows:
-                show_data = {
-                    'show_id': show.show_id,
-                    'name': show.name,
-                    'show_datetime': convert_datetime_to_str(show.date_time),
-                    'seats_booked': show.seats_booked,
-                    'seats_available': show.seats_available,
-                    'show_screen': show.show_screen,
-                    'imagefile': show.image,
-                    'price': show.price
-                }
-                shows_data.append(show_data)
+                if show.date_time > datetime.now():
+                    show_data = {
+                        'show_id': show.show_id,
+                        'name': show.name,
+                        'show_datetime': convert_datetime_to_str(show.date_time),
+                        'seats_booked': show.seats_booked,
+                        'seats_available': show.seats_available,
+                        'show_screen': show.show_screen,
+                        'imagefile': show.image,
+                        'price': show.price
+                    }
+                    shows_data.append(show_data)
 
             venue_data = {
                 'venue_id': v.venue_id,  # Use 'v.venue_id' instead of 'venue.venue_id'
@@ -366,7 +387,7 @@ class User_api(Resource):
             }
             data.append(venue_data)
 
-        return {"venues": data}
+        return {"venues": data},200
     
     @jwt_required()
     def put(self,show_id):
@@ -397,3 +418,64 @@ class User_api(Resource):
         else:
             return {'status': False, 'msg': 'Invalid number of tickets'}, 400
 
+#<-----------------------------------------------------BOOKING API------------------------------------------------------------------------------>
+
+class Booking_api(Resource):
+
+    @jwt_required()
+    def get(self):
+        current_user = get_jwt_identity()
+        user = User.query.filter_by(email=current_user).first()
+        if not user:
+            return {'status': False, 'msg': 'User not found'}, 400
+        booking = Booking.query.filter_by(user_id=user.user_id).all()
+        data = []
+
+        for b in booking:
+            shows = Show.query.filter_by(show_id=b.show_id).all() 
+            shows_data = {}
+            for show in shows:
+                if show.date_time > datetime.now():
+                    past_show = True
+                else:
+                    past_show = False
+                show_data = {
+                    'show_id': show.show_id,
+                    'name': show.name,
+                    'show_datetime': convert_datetime_to_str(show.date_time),
+                    'seats_booked': show.seats_booked,
+                    'seats_available': show.seats_available,
+                    'show_screen': show.show_screen,
+                    'imagefile': show.image,
+                    'price': show.price,
+                    'past_show': past_show,
+                    'tickets': b.tickets
+                }
+                shows_data = show_data
+                # shows_data = show_data
+
+            booking_data = {
+                'booking_id': b.booking_id,  # Use 'v.venue_id' instead of 'venue.venue_id'
+                'user_id': b.user_id,  # Use 'v.name' instead of 'venue.name'
+                'show_id': b.show_id,  # Use 'v.venue_location' instead of 'venue.venue_location'
+                'tickets': b.tickets,  # Use 'v.admin_id' instead of 'venue.admin_id'
+                'shows': shows_data
+            }
+            data.append(booking_data)
+
+        return {"bookings": data},200
+
+
+    @jwt_required()
+    def delete(self,booking_id):
+        current_user = get_jwt_identity()
+        user = User.query.filter_by(email=current_user).first()
+        if not user:
+            return {'status': False, 'msg': 'User not found'}, 400
+        booking = Booking.query.filter_by(booking_id=booking_id).first()
+        show = Show.query.filter_by(show_id=booking.show_id).first()
+        show.seats_booked = show.seats_booked - booking.tickets
+        db.session.delete(booking)
+        db.session.commit()
+
+        return {'status': True, 'msg': 'Booking Cancelled successfully'}, 200        

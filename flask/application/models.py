@@ -37,6 +37,8 @@ class Show(db.Model):
     price = db.Column(db.Integer, nullable=False)
     show_screen = db.Column(db.Integer, nullable=False)
     image = db.Column(db.String)
+    tags = db.Column(db.String)  # Multiple string tags separated by commas or semicolons, etc.
+    # rating = db.Column(db.Float, default=0.0)
     venue_id = db.Column(db.Integer, db.ForeignKey('venues.venue_id'), nullable=False)
     bookings = db.relationship('Booking', backref='show', lazy=True)
 

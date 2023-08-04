@@ -10,9 +10,9 @@
                     </h2>
                     <!------------------------------------------------------- Venue Header ---------------------------------------------------------------->
                     <div>
-                        <button @click="addShowOpenModal(venue.name,venue.venue_location)" class="btn btn-success btn-lg text-primary mr-2" style="position:relative; "> Add show </button>
-                        <button @click="OpenEditvenueModal(venue.name,venue.venue_location)" class="btn btn-warning btn-lg text-primary mr-2"> &#128393; </button>
-                        <button @click="deleteVenue(venue.name)" class="btn btn-danger btn-lg text-primary"> Del </button>
+                        <button @click="addShowOpenModal(venue.venue_id)" class="btn btn-success btn-lg text-primary mr-2" style="position:relative; "> Add show </button>
+                        <button @click="OpenEditvenueModal(venue.venue_id,venue.name, venue.venue_location)" class="btn btn-warning btn-lg text-primary mr-2"> &#128393; </button>
+                        <button @click="deleteVenue(venue.venue_id)" class="btn btn-danger btn-lg text-primary"> Del </button>
 
                     </div>
                 </div>
@@ -21,27 +21,27 @@
 
                 <div class="flex row mb-2">
                     <div v-for="show in venue.shows.shows" :key="show.show_id" class="card border-primary mb-2" style="max-width: 20rem; margin-top: 13px; margin-left:15px">
-
-                        <div class="card-header" style="font-size: 32px;">{{show.name}}</div>
-                        <div class="card-body">
-                            <h4 class="card-title"></h4>
-                            <h6 class="card-subtitle text-muted" style="font-size: 20px;">{{ show.show_datetime }}</h6>
+                        
+                        <div class="card-header" style="font-size: 32px;">{{show.name}}
+                        <h6 class="card-subtitle text-muted" style="font-size: 20px;">{{ show.show_datetime }}</h6>
                         </div>
+                        
                         <img v-if="show.imagefile" :src="show.imagefile">
                         <svg v-else class="d-block user-select-none" width="100%" height="200" aria-label="Placeholder: Image cap" focusable="false" role="img" preserveAspectRatio="xMidYMid slice" viewBox="0 0 318 180" style="font-size:1.125rem;text-anchor:middle">
                             <rect width="100%" height="100%" fill="#868e96"></rect>
                             <text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text>
                         </svg>
                         <div class="card-body">
-                            <p class="card-text" style="font-size: 20px;">Screen Number : {{ show.show_screen }}</p>
-                            <p class="card-text" style="font-size: 20px;">Price: &#x20B9; {{ show.price }} /-</p>
-                            <p class="card-text" style="font-size: 20px;">Seats Available: {{ show.seats_booked }} / {{ show.seats_available }}</p>
+                            <p class="card-text" style="font-size: 20px; ">Screen Number : {{ show.show_screen }}</p>
+                            <p class="card-text" style="font-size: 20px; margin-top: -10px;">Price: &#x20B9; {{ show.price }} /-</p>
+                            <p class="card-text" style="font-size: 20px; margin-top: -10px;">Seats Available: {{ show.seats_booked }} / {{ show.seats_available }}</p>
+                            <p class="card-text" style="font-size: 20px; margin-top: -10px;">Genre :  {{ show.tags }} </p>
 
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button @click="OpenEditShowModal(show.name,show.price,show.show_datetime,show.show_screen,show.seats_available, show.imagefile)" class="btn btn-warning text-primary" type="button">Update</button>
-                            <button @click="openDeleteShowModal(show.name)" class="btn btn-danger text-white mb-3" type="button">Delete</button>
+                            <button @click="OpenEditShowModal(show.show_id,show.name,show.price,show.show_datetime,show.show_screen,show.seats_available, show.imagefile,show.tags)" class="btn btn-warning text-primary" type="button">Update</button>
+                            <button @click="openDeleteShowModal(show.show_id)" class="btn btn-danger text-white mb-3" type="button">Delete</button>
 
                             <!-- </div> -->
                         </div>
@@ -59,7 +59,7 @@
             </i> -->
     </div>
     <div class="modal fade" :class="{ 'show': showModal }" id="VenueModal" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="VenueModalLabel" style="position: fixed;">Add Venue</h5>
@@ -97,7 +97,7 @@
     <!----------------------------------------------------- Editing venues Modal ----------------------------------------------------------------->
 
     <div class="modal fade" :class="{ 'show': EditVenueModal }" id="EditVenueModal" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="VenueModalLabel" style="position: fixed;">Edit Venue</h5>
@@ -137,7 +137,7 @@
     <!----------------------------------------------------- Adding Shows Modal ----------------------------------------------------------------->
 
     <div class="modal fade" :class="{ 'show': addShowModal }" id="AddShowModal" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="ShowModalLabel" style="position: fixed;">Add Show</h5>
@@ -175,6 +175,12 @@
                             <input class="form-control" type="text" v-model="ShowScreen" placeholder="Enter the Screen no. of the show" />
                             <p v-if="ShowScreenerror" style="color: red;">{{ ShowScreenerror }}</p>
                         </div>
+                        <label class="label">
+                            <h5> Tags </h5>
+                        </label>
+                        <div class="control mb-3">
+                            <input class="form-control" type="text" v-model="Tags" placeholder="Enter comma separated tags for the show" />
+                        </div>
 
                         <label class="label">
                             <h5> Seats Available</h5>
@@ -205,7 +211,7 @@
     <!----------------------------------------------------- Editing Shows Modal ----------------------------------------------------------------->
 
     <div class="modal fade" :class="{ 'show': EditShowModal }" id="EditShowModal" tabindex="-1" aria-labelledby="staticBackdropLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="ShowModalLabel" style="position: fixed;">Edit Show</h5>
@@ -239,6 +245,13 @@
                         </label>
                         <div class="control mb-3">
                             <input class="form-control" type="text" v-model="newShowScreen" placeholder="Enter the Screen no. of the show" />
+                        </div>
+
+                        <label class="label">
+                            <h5> Tags </h5>
+                        </label>
+                        <div class="control mb-3">
+                            <input class="form-control" type="text" v-model="newTags" placeholder="Enter comma separated tags for the show" />
                         </div>
 
                         <label class="label">
@@ -315,7 +328,11 @@ export default {
             newShowScreen: '',
             newShowSeats: null,
             newShowDateTime: '',
+            Tags: null,
+            newTags: '',
             showName: '',
+            showid: null,
+            venueid: null,
             ShowScreen: '',
             ShowSeats: null,
             ShowDateTime: '',
@@ -341,50 +358,64 @@ export default {
         closeModal() {
             this.venueName = '';
             this.venueLocation = '';
+            this.venueNameerror= '';
+            this.venueLocationerror ='';
             this.showModal = false;
             location.reload()
         },
-        addShowOpenModal(venueName,venuelocation) {
-            this.venueName = venueName;
-            this.venueLocation = venuelocation;
+        addShowOpenModal(venueid) {
+            // this.venueName = venueName;
+            // this.venueLocation = venuelocation;
+            this.venueid = venueid;
             this.addShowModal = true;
 
         },
         closeShowModal() {
-            this.addShowModal = false;
             this.showName = null;
             this.price = null;
             this.ShowScreen = null;
             this.ShowSeats = null;
             this.ShowDateTime = null;
+            this.Tags = null;
+            this.imagefile= null;
             this.venueName = '';
+            this.ShowNameerror ='';
+            this.priceerror ='';
+            this.ShowScreenerror='';
+            this.ShowDatetimeerror='';
+            this.ShowSeatserror = '';
+            this.addShowModal = false;
             // location.reload();
         },
-        OpenEditvenueModal(venueName, venueLocation) {
+        OpenEditvenueModal(venueid,venueName, venueLocation) {
             console.log(venueName);
             this.newVenueName = venueName;
             this.newVenueLocation = venueLocation;
             this.venueName = venueName;
+            this.venueid = venueid;
             this.EditVenueModal = true;
         },
         closeEditVenueModal() {
             this.newVenueName = '';
             this.newVenueLocation = '';
+            this.venueid = null;
+            this.imagefile = null;
             this.EditVenueModal = false;
 
             // location.reload();
         },
-        OpenEditShowModal(showname, showprice, show_datetime, show_screen, seats_available, image_file) {
+        OpenEditShowModal(showid,showname, showprice, show_datetime, show_screen, seats_available, image_file, showtags) {
 
             this.showName = showname;
-            this.ShowDateTime = show_datetime;
+            this.showid = showid;
             this.newshowName = showname;
             this.newShowDateTime = show_datetime;
-            this.ShowScreen = show_screen;
+            // this.ShowScreen = show_screen;
             this.newShowScreen = show_screen;
-            this.ShowSeats = seats_available;
+            // this.ShowSeats = seats_available;
             this.newShowSeats = seats_available;
             this.newprice = showprice;
+            this.newTags = showtags;
             this.imagefile = image_file;
             this.EditShowModal = true;
         },
@@ -396,14 +427,15 @@ export default {
             this.newshowName = '';
             this.imagefile = '';
             this.showName = '';
+            this.showid = null;
             this.EditShowModal = false;
         },
-        openDeleteShowModal(showname) {
-            this.showName = showname;
+        openDeleteShowModal(showid) {
+            this.showid = showid;
             this.DeleteShowModal = true;
         },
         closeDeleteShowModal() {
-            this.showName = '';
+            this.showid = null;
             this.DeleteShowModal = false;
         },
         uploadImage(event) {
@@ -496,6 +528,8 @@ export default {
                 }).catch((e) => {
                     console.log(e);
                 }).finally(() => {
+                    this.venueName = null;
+                    
                     this.closeModal();
                     this.loadvenues();
                 })
@@ -508,8 +542,8 @@ export default {
                 }
             }
         },
-        deleteVenue(venueName) {
-            const currentVenue = this.venues.find((venue) => venue.name === venueName);
+        deleteVenue(venueid) {
+            const currentVenue = this.venues.find((venue) => venue.venue_id === venueid);
             if (!currentVenue) {
                 console.error("Venue not found");
                 return;
@@ -555,7 +589,7 @@ export default {
         },
         EditVenue() {
             // console.log(venueName)
-            const currentVenue = this.venues.find(venue => venue.name === this.venueName);
+            const currentVenue = this.venues.find(venue => venue.venue_id === this.venueid);
             // const currentVenue = this.venueName === venueName;
             if (!currentVenue) {
                 console.error("Venue not found");
@@ -620,7 +654,7 @@ export default {
 
         addShow() {
             if (this.showName && this.price && this.ShowScreen && this.ShowDateTime && this.ShowSeats) {
-                const currentVenue = this.venues.find(venue => venue.name === this.venueName && venue.venue_location === this.venueLocation);
+                const currentVenue = this.venues.find(venue => venue.venue_id === this.venueid );
                 console.log(currentVenue.venue_location);
                 if (!currentVenue) {
                     console.error('Venue not found.');
@@ -641,11 +675,12 @@ export default {
                         show_screen: this.ShowScreen,
                         imagefile: this.imagefile,
                         show_seats: this.ShowSeats,
-                        show_datetime: this.ShowDateTime
+                        show_datetime: this.ShowDateTime,
+                        tags : this.Tags,
                     }),
                 }).then((response) => {
                     if (!response.ok) {
-                        alert("Response not ok");
+                        alert("Inavlid Request. Please Enter Valid Details");
                     }
                     return response.json();
                 }).then((data) => {
@@ -656,7 +691,8 @@ export default {
                             show_datetime,
                             seats_available,
                             show_screen,
-                            price
+                            price,
+                            tags,
                         } = data;
                         const newShow = {
                             show_id,
@@ -664,7 +700,8 @@ export default {
                             price,
                             show_screen,
                             seats_available,
-                            show_datetime
+                            show_datetime,
+                            tags
 
                         };
                         currentVenue.shows.push(newShow);
@@ -682,6 +719,7 @@ export default {
                 }).catch((e) => {
                     console.log(e);
                 }).finally(() => {
+                    this.imagefile =null;
                     this.closeShowModal();
                     this.loadvenues();
                 });
@@ -700,7 +738,7 @@ export default {
         EditShow() {
 
             const currentVenue = this.venues.find(venue => {
-                return Array.isArray(venue.shows.shows) && venue.shows.shows.some(show => show.name === this.showName && show.show_screen===this.ShowScreen && show.seats_available === this.ShowSeats);
+                return Array.isArray(venue.shows.shows) && venue.shows.shows.some(show => show.show_id === this.showid );
             });
 
             // const currentVenue = this.venueName === venueName;
@@ -731,6 +769,9 @@ export default {
             }
             if (this.newShowSeats) {
                 requestBody.seats_available = this.newShowSeats;
+            }
+            if (this.newTags) {
+                requestBody.tags = this.newTags;
             }
             if (this.imagefile) {
                 // requestBody.imagefile = this.imagefile;
@@ -770,6 +811,9 @@ export default {
                         if (this.newShowSeats) {
                             currentShow.seats_available = this.newShowSeats;
                         }
+                        if (this.newTags) {
+                            currentShow.tags = this.newTags;
+                        }
                         if (this.imagefile) {
                             // currentShow.imagefile = this.imagefile;
                             currentShow.imagefile = this.imagefile;
@@ -796,7 +840,7 @@ export default {
         },
         deleteShow() {
             const currentVenue = this.venues.find(venue => {
-                return Array.isArray(venue.shows.shows) && venue.shows.shows.some(show => show.name === this.showName);
+                return Array.isArray(venue.shows.shows) && venue.shows.shows.some(show => show.show_id === this.showid);
             });
             // const currentVenue = this.venueName === venueName;
             if (!currentVenue) {
@@ -804,7 +848,7 @@ export default {
                 return;
             }
             // console.log(currentVenue);
-            const currentShow = currentVenue.shows.shows.find(show => show.name === this.showName);
+            const currentShow = currentVenue.shows.shows.find(show => show.show_id === this.showid);
             console.log(currentShow);
 
             fetch(`http://127.0.0.1:5000/api/Shows/edit/${currentShow.show_id}`, {

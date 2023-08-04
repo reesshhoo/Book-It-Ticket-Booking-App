@@ -2,11 +2,11 @@ import { createRouter, createWebHistory } from 'vue-router'
 // import HomeView from '../views/HomeView.vue'
 import AdminView from '../views/AdminView.vue'
 import UserView from '../views/UserView.vue'
+import UserBookingView from '../views/UserBookingView.vue'
 import RegisterComponent from '../components/RegisterComponent.vue'
 import LoginComponent from '../components/LoginComponent.vue'
 import AdminSummary from '../components/AdminSummary.vue'
 import UserDashboard from '../components/UserDashboard.vue'
-import UserBookings from '../components/UserBookings.vue'
 
 const routes = [
   {
@@ -42,8 +42,8 @@ const routes = [
   
   {
     path: '/User_Bookings',
-    name: 'UserBookings',
-    component: UserBookings
+    name: 'UserBookingView',
+    component: UserBookingView
   },
   
 ]

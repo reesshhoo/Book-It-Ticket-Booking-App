@@ -31,11 +31,16 @@
                         <form class="form">
                             <label>Email</label><br>
                             <input v-model="email" type="text" class="form-control">
-                            <p v-if="emailerror" style="color: red;">{{ emailerror }}</p>
+                            <div v-if="emailerror" class="alert alert-dismissible alert-danger">
+                                <strong>Oh snap!</strong>
+                                <p>{{ emailerror }}</p>
+                            </div>
 
                             <label class="mt-2">Password</label><br>
                             <input v-model="password" type="password" class="form-control">
-                            <p v-if="passworderror" style="color: red;">{{ passworderror }}</p>
+                            <div v-if="passworderror" class="alert alert-dismissible alert-danger">
+                                <strong>Oh snap!</strong><p>{{ passworderror }}</p>
+                            </div>
 
                             <div class="form-check">
                                 <input class="form-check-input" type="radio" v-model="role" name="userradio" id="user" value="user">
@@ -49,7 +54,12 @@
                                     </label>
                                 </span>
                             </div>
-                            <p v-if="roleerror" style="color: red;">{{ roleerror }}</p><br>
+                            <div v-if="roleerror" class="alert alert-dismissible alert-danger">
+
+                                <strong>Oh snap!</strong>
+                                <p>{{ roleerror }}</p>
+                            </div>
+
                             <br>
 
                             <div class="d-grid gap-2">

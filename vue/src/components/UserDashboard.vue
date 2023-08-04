@@ -2,38 +2,40 @@
 <div class="dashboard">
     <div class="container-fluid">
         <!------------------------------------------------------- Displaying venues -------------------------------------------------------------->
-        <div class="row">
-            <div class="row-3 card border-primary mb-3 mt-5" v-for="venue in venues" :key="venue.venue_id">
-                <div class="d-flex justify-content-between  align-items-center" style=" border-bottom:3px solid rgba(13, 12, 12, 0.537); margin-bottom: 15px;">
-                    <h2 class="text-primary text-dark" style="margin-top:15px;">{{ venue.name }} <br />
-                        <h6 class="card-subtitle text-muted mt-0.7" style="font-size: 20px; margin-left: 2px;"> {{ venue.venue_location }}</h6>
-                    </h2>
-                </div>
+        <div class="">
+            <div class=" row">
+                <div class="row-3 card border-primary mb-3 mt-5" v-for="venue in venues" :key="venue.venue_id">
+                    <div class="d-flex justify-content-between  align-items-center" style=" border-bottom:3px solid rgba(13, 12, 12, 0.537); margin-bottom: 15px;">
+                        <h2 class="text-primary text-dark" style="margin-top:15px;">{{ venue.name }} <br />
+                            <h6 class="card-subtitle text-muted mt-0.7" style="font-size: 20px; margin-left: 2px;"> {{ venue.venue_location }}</h6>
+                        </h2>
+                    </div>
 
-                <!----------------------------------------------------- Displaying Shows ----------------------------------------------------------------->
+                    <!----------------------------------------------------- Displaying Shows ----------------------------------------------------------------->
 
-                <div class="flex row mb-2">
-                    <div v-for="show in venue.shows" :key="show.show_id" class="card border-primary mb-2 pb-4" style="max-width: 20rem; margin-top: 13px; margin-left:15px">
+                    <div class="flex row mb-2">
+                        <div v-for="show in venue.shows" :key="show.show_id" class="card border-primary mb-2 pb-4" style="max-width: 20rem; margin-top: 13px; margin-left:15px">
 
-                        <div class="card-header" style="font-size: 32px;">{{show.name}}</div>
-                        <div class="card-body">
-                            <h4 class="card-title"></h4>
-                            <h6 class="card-subtitle text-muted" style="font-size: 20px;">{{ show.show_datetime }}</h6>
-                        </div>
-                        <img v-if="show.imagefile" :src="show.imagefile">
-                        <svg v-else class="d-block user-select-none" width="100%" height="200" aria-label="Placeholder: Image cap" focusable="false" role="img" preserveAspectRatio="xMidYMid slice" viewBox="0 0 318 180" style="font-size:1.125rem;text-anchor:middle">
-                            <rect width="100%" height="100%" fill="#868e96"></rect>
-                            <text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text>
-                        </svg>
-                        <div class="card-body">
-                            <p class="card-text" style="font-size: 20px;">Screen Number : {{ show.show_screen }}</p>
-                            <p class="card-text" style="font-size: 20px;">Price: &#x20B9; {{ show.price }} /-</p>
-                            <p class="card-text" style="font-size: 20px;">Seats Available: {{ show.seats_booked }} / {{ show.seats_available }}</p>
+                            <div class="card-header" style="font-size: 32px;">
+                                {{show.name}}
+                                <h6 class="card-subtitle text-muted" style="font-size: 20px;">{{ show.show_datetime }}</h6>
+                            </div>
+                            <img v-if="show.imagefile" :src="show.imagefile">
+                            <svg v-else class="d-block user-select-none" width="100%" height="200" aria-label="Placeholder: Image cap" focusable="false" role="img" preserveAspectRatio="xMidYMid slice" viewBox="0 0 318 180" style="font-size:1.125rem;text-anchor:middle">
+                                <rect width="100%" height="100%" fill="#868e96"></rect>
+                                <text x="50%" y="50%" fill="#dee2e6" dy=".3em">Image cap</text>
+                            </svg>
+                            <div class="card-body">
+                                <p class="card-text" style="font-size: 20px;">Screen Number : {{ show.show_screen }}</p>
+                                <p class="card-text" style="font-size: 20px; margin-top: -10px;">Price: &#x20B9; {{ show.price }} /-</p>
+                                <p class="card-text" style="font-size: 20px; margin-top: -10px;">Seats Left: {{ show.seats_available - show.seats_booked }} / {{ show.seats_available }}</p>
+                                <p class="card-text" style="font-size: 20px; margin-top: -10px;">Genre : {{ show.tags }}</p>
 
-                        </div>
+                            </div>
 
-                        <div class="d-grid gap-2">
-                            <button @click="OpenBookShowModal(show.name,show.show_datetime,show.price,show.seats_available,show.seats_booked, show.imagefile)" class="btn btn-success text-primary" type="button">Book Now!</button>
+                            <div class="d-grid gap-2">
+                                <button @click="OpenBookShowModal(show.name,show.show_datetime,show.price,show.seats_available,show.seats_booked, show.imagefile)" class="btn btn-success text-primary" type="button">Book Now!</button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -77,7 +79,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="btn btn-success" @click="OpenPaymentModal">Add Venue</button>
+                    <button class="btn btn-success" @click="OpenPaymentModal">Confirm</button>
                     <button class="btn btn-danger" data-bs-dismiss="modal" @click="closeModal">Cancel</button>
                 </div>
             </div>
@@ -92,13 +94,12 @@
                     <button @click="ClosePaymentModal" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="modal-body">
-                    
 
-                        <h4> Your Total Amount Payable is : <span class="ml-3">&#x20B9; {{ showPrice  * NumberOfPeople}} </span></h4>
-                   
+                    <h4> Your Total Amount Payable is : <span class="ml-3">&#x20B9; {{ showPrice  * NumberOfPeople}} </span></h4>
+
                     <div class="field">
 
-                        <h4>Confirm Payment?  </h4>
+                        <h4>Confirm Payment? </h4>
                     </div>
                 </div>
                 <div class="modal-footer">
@@ -115,7 +116,7 @@
 // import router from '@/router';
 
 export default {
-    name: "AdminDashboard",
+    name: "UserDashboard",
     data() {
         return {
             errormsg: '',
@@ -188,67 +189,65 @@ export default {
             });
         },
         BookShow() {
-        if (this.NumberOfPeople) {
-        if (this.NumberOfPeople>0) {
-            const currentVenue = this.venues.find(venue => {
-                return Array.isArray(venue.shows) && venue.shows.some(show => show.name === this.showName);
-            });
-            // const currentVenue = this.venueName === venueName;
-            if (!currentVenue) {
-                console.error("venue not found");
-                return;
+            if (this.NumberOfPeople) {
+                if (this.NumberOfPeople > 0) {
+                    const currentVenue = this.venues.find(venue => {
+                        return Array.isArray(venue.shows) && venue.shows.some(show => show.name === this.showName);
+                    });
+                    // const currentVenue = this.venueName === venueName;
+                    if (!currentVenue) {
+                        console.error("venue not found");
+                        return;
+                    }
+                    // console.log(currentVenue);
+                    const currentShow = currentVenue.shows.find(show => show.name === this.showName);
+                    console.log(currentShow);
+
+                    fetch(`http://127.0.0.1:5000/api/User/${currentShow.show_id}`, {
+                            method: "PUT",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Access-Control-Allow-Origin": "*",
+                                Authorization: "Bearer " + localStorage.getItem("access_token"),
+                            },
+                            body: JSON.stringify({
+                                tickets: this.NumberOfPeople,
+                            }),
+                        }).then((response) => {
+                            if (!response.ok) {
+                                alert("Insuffiecient Seats");
+                                // console.log('Response not ok');
+                                // console.log(response);
+
+                            }
+                            return response.json();
+                        }).then((data) => {
+                            if (data) {
+                                console.log(data);
+                                // this.venues = data.venues;
+                                // console.log(this.venues)
+
+                            } else {
+                                this.errormsg = data.msg;
+                            }
+                        }).catch((e) => {
+                            console.log(e);
+                        })
+                        .finally(() => {
+                            this.ClosePaymentModal();
+                            this.loadvenues();
+                            this.NumberOfPeople = null;
+                        });
+                } else {
+                    this.NumberOfPeopleerror = 'Please enter valid no. of seats';
+                    alert(this.NumberOfPeopleerror);
+                }
             }
-            // console.log(currentVenue);
-            const currentShow = currentVenue.shows.find(show => show.name === this.showName);
-            console.log(currentShow);
-               
-            fetch(`http://127.0.0.1:5000/api/User/${currentShow.show_id}`, {
-                    method: "PUT",
-                    headers: {
-                        "Content-Type": "application/json",
-                        "Access-Control-Allow-Origin": "*",
-                        Authorization: "Bearer " + localStorage.getItem("access_token"),
-                    },
-                    body: JSON.stringify({
-                        tickets: this.NumberOfPeople,
-                    }),
-                }).then((response) => {
-                    if (!response.ok) {
-                        alert("Insuffiecient Seats");
-                        // console.log('Response not ok');
-                        // console.log(response);
-
-                    }
-                    return response.json();
-                }).then((data) => {
-                    if (data) {
-                        console.log(data);
-                        // this.venues = data.venues;
-                        // console.log(this.venues)
-
-                    } else {
-                        this.errormsg = data.msg;
-                    }
-                }).catch((e) => {
-                    console.log(e);
-                })
-                .finally(() => {
-                    this.ClosePaymentModal();
-                    this.loadvenues();
-                    this.NumberOfPeople = null;
-                });
         }
-        else{
-            this.NumberOfPeopleerror = 'Please enter valid no. of seats';
-            alert(this.NumberOfPeopleerror);
-        }
-    }
-    }
     },
     mounted() {
         this.loadvenues();
     },
-   
 
 }
 </script>
@@ -274,13 +273,12 @@ export default {
     margin: -0.5rem;
 }
 
-.col-md-4 {
-    padding: 0.5rem;
-}
-
-.plus {
-    position: fixed;
-    bottom: 5%;
-    right: 2%;
+.container-scroll {
+    overflow-x: auto;
+    white-space: nowrap;
+    width: 100%;
+    /* max-width: 1200px;
+    overflow-x: auto;
+    overflow-y: auto; */
 }
 </style>
