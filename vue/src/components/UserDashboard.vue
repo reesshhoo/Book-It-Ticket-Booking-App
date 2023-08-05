@@ -34,7 +34,7 @@
                             </div>
 
                             <div class="d-grid gap-2">
-                                <button @click="OpenBookShowModal(show.name,show.show_datetime,show.price,show.seats_available,show.seats_booked, show.imagefile)" class="btn btn-success text-primary" type="button">Book Now!</button>
+                                <button @click="OpenBookShowModal(show.show_id,show.name,show.show_datetime,show.price,show.seats_available,show.seats_booked, show.imagefile)" class="btn btn-success text-primary" type="button">Book Now!</button>
                             </div>
                         </div>
                     </div>
@@ -62,7 +62,7 @@
                             <h5> Show Price : <span class="ml-3">&#x20B9; {{ showPrice  }} </span></h5>
                         </div>
                         <div class="label">
-                            <h5> Seats Available : <span class="ml-3">{{seatsBooked}} / {{ seatsAvailable }} </span> </h5>
+                            <h5> Seats Left : <span class="ml-3">{{ seatsAvailable - seatsBooked}} / {{ seatsAvailable }} </span> </h5>
                         </div>
                         <div class="label">
                             <h5> Show Date: <span class="ml-3"> {{ showDateTime }} </span> </h5>
@@ -126,6 +126,7 @@ export default {
             NumberOfPeopleerror: '',
             BookModal: false,
             PaymentModal: false,
+            showid: null,
             showName: '',
             showDateTime: '',
             showPrice: '',
@@ -135,7 +136,8 @@ export default {
     },
     methods: {
 
-        OpenBookShowModal(showname, show_datetime, showprice, seats_available, seats_booked, imagefile) {
+        OpenBookShowModal(showid,showname, show_datetime, showprice, seats_available, seats_booked, imagefile) {
+            this.showid = showid;
             this.showName = showname;
             this.showDateTime = show_datetime;
             this.showPrice = showprice;
@@ -192,7 +194,7 @@ export default {
             if (this.NumberOfPeople) {
                 if (this.NumberOfPeople > 0) {
                     const currentVenue = this.venues.find(venue => {
-                        return Array.isArray(venue.shows) && venue.shows.some(show => show.name === this.showName);
+                        return Array.isArray(venue.shows) && venue.shows.some(show => show.show_id === this.showid);
                     });
                     // const currentVenue = this.venueName === venueName;
                     if (!currentVenue) {
@@ -200,7 +202,7 @@ export default {
                         return;
                     }
                     // console.log(currentVenue);
-                    const currentShow = currentVenue.shows.find(show => show.name === this.showName);
+                    const currentShow = currentVenue.shows.find(show => show.show_id === this.showid);
                     console.log(currentShow);
 
                     fetch(`http://127.0.0.1:5000/api/User/${currentShow.show_id}`, {
@@ -216,16 +218,12 @@ export default {
                         }).then((response) => {
                             if (!response.ok) {
                                 alert("Insuffiecient Seats");
-                                // console.log('Response not ok');
-                                // console.log(response);
 
                             }
                             return response.json();
                         }).then((data) => {
                             if (data) {
                                 console.log(data);
-                                // this.venues = data.venues;
-                                // console.log(this.venues)
 
                             } else {
                                 this.errormsg = data.msg;

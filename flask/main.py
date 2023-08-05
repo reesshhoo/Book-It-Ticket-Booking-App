@@ -27,6 +27,7 @@ api.add_resource(Venue_api,"/api/Venues", "/api/Venues/<venue_id>")
 api.add_resource(Shows_api, "/api/Shows/<venue_id>","/api/Shows/edit/<show_id>")
 api.add_resource(User_api, "/api/User", "/api/User/<show_id>")
 api.add_resource(Booking_api, "/api/UserBookings", "/api/UserBookings/<booking_id>")
+api.add_resource(Search, "/api/search/<searchvalue>")
 
 
 

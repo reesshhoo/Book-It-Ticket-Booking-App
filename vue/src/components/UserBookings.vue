@@ -21,7 +21,8 @@
                     <td>{{ book.shows.show_screen }}</td>
                     <td>
                         <button v-if="book.shows.past_show" @click="OpenDeleteBookingModal(book.booking_id)" class="btn btn-block btn-danger">Cancel</button>
-                        <button v-else @click="OpenRatingModal" class="btn btn-block btn-success"> &#11088; Rate</button>
+                        <!-- <button v-else @click="OpenRatingModal" class="btn btn-block btn-success"> &#11088; Rate</button> -->
+                        <button v-else @click="OpenRatingModal" class="btn btn-block btn-danger disabled">Cancel </button>
                     </td>
                 </tr>
             </tbody>

@@ -45,6 +45,11 @@ def convert_datetime_to_str(date_time):
     formatted_date = date_time.strftime("%d{} %B, %Y, %I:%M %p").format(get_day_suffix(date_time.day))
     return formatted_date
 
+def convert_tags_into_array(show_tags):
+    tags_list = show_tags.split(',')
+    tags_list = [tag.strip() for tag in tags_list]  # Remove leading and trailing spaces
+    return tags_list
+
 
 
 
@@ -242,7 +247,7 @@ class Shows_api(Resource):
                 'show_screen': show.show_screen,
                 'imagefile': show.image,
                 'price': show.price,
-                'tags': show.tags
+                'tags': convert_tags_into_array(show.tags)
             }
             shows_data.append(show_data)
 
@@ -373,6 +378,7 @@ class User_api(Resource):
                         'seats_booked': show.seats_booked,
                         'seats_available': show.seats_available,
                         'show_screen': show.show_screen,
+                        'tags': convert_tags_into_array(show.tags),
                         'imagefile': show.image,
                         'price': show.price
                     }
@@ -478,4 +484,83 @@ class Booking_api(Resource):
         db.session.delete(booking)
         db.session.commit()
 
-        return {'status': True, 'msg': 'Booking Cancelled successfully'}, 200        
+        return {'status': True, 'msg': 'Booking Cancelled successfully'}, 200       
+
+
+#<-----------------------------------------------------SEARCHING API------------------------------------------------------------------------------> 
+
+class Search(Resource):
+    @jwt_required()
+    def get(self, searchvalue):
+        current_user = get_jwt_identity()
+        user = User.query.filter_by(email=current_user).first()
+        if not user:
+            return {'status': False, 'msg': 'User not found'}, 400
+        
+        venue = Venue.query.all()
+        sshows = Show.query.all()
+        data = []
+        for v in venue:
+            if (searchvalue in v.name.lower()) or (searchvalue in v.venue_location.lower()):
+                shows = Show.query.filter_by(venue_id=v.venue_id).all() 
+                shows_data = []
+                for show in shows:
+                    if show.date_time > datetime.now():
+                        show_data = {
+                            'show_id': show.show_id,
+                            'name': show.name,
+                            'show_datetime': convert_datetime_to_str(show.date_time),
+                            'seats_booked': show.seats_booked,
+                            'seats_available': show.seats_available,
+                            'show_screen': show.show_screen,
+                            'tags': convert_tags_into_array(show.tags),
+                            'imagefile': show.image,
+                            'price': show.price
+                        }
+                        shows_data.append(show_data)
+
+                venue_data = {
+                    'venue_id': v.venue_id,  # Use 'v.venue_id' instead of 'venue.venue_id'
+                    'name': v.name,  # Use 'v.name' instead of 'venue.name'
+                    'venue_location': v.venue_location,  # Use 'v.venue_location' instead of 'venue.venue_location'
+                    'admin_id': v.admin_id,  # Use 'v.admin_id' instead of 'venue.admin_id'
+                    'shows': shows_data
+                }
+                data.append(venue_data)
+
+        if len(data)>0:
+            return {"venues": data},200
+            
+        other_data = []
+        for s in sshows:
+            ven = Venue.query.filter_by(venue_id=s.venue_id).first()
+            if (searchvalue in s.name) or (searchvalue in convert_tags_into_array(s.tags)):
+                shows_data = []
+                if s.date_time > datetime.now():
+                    show_data = {
+                        'show_id': s.show_id,
+                        'name': s.name,
+                        'show_datetime': convert_datetime_to_str(s.date_time),
+                        'seats_booked': s.seats_booked,
+                        'seats_available': s.seats_available,
+                        'show_screen': s.show_screen,
+                        'tags': convert_tags_into_array(s.tags),
+                        'imagefile': s.image,
+                        'price': s.price
+                    }
+                    shows_data.append(show_data)
+
+                    venue_data = {
+                        'venue_id': ven.venue_id,  # Use 'v.venue_id' instead of 'venue.venue_id'
+                        'name': ven.name,  # Use 'v.name' instead of 'venue.name'
+                        'venue_location': ven.venue_location,  # Use 'v.venue_location' instead of 'venue.venue_location'
+                        'admin_id': ven.admin_id,  # Use 'v.admin_id' instead of 'venue.admin_id'
+                        'shows': shows_data
+                    }
+                    other_data.append(venue_data)
+        
+        if len(other_data)>0:
+            return {"venues": other_data},200
+        
+        return {'msg': 'No Results Found'},400
+

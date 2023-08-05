@@ -6,7 +6,8 @@ import UserBookingView from '../views/UserBookingView.vue'
 import RegisterComponent from '../components/RegisterComponent.vue'
 import LoginComponent from '../components/LoginComponent.vue'
 import AdminSummary from '../components/AdminSummary.vue'
-import UserDashboard from '../components/UserDashboard.vue'
+// import UserDashboard from '../components/UserDashboard.vue'
+import SearchComponent from '../components/SearchComponent.vue'
 
 const routes = [
   {
@@ -34,16 +35,21 @@ const routes = [
     name: 'AdminSummary',
     component: AdminSummary
   },
-  {
-    path: '/UserDashboard',
-    name: 'UserDashboard',
-    component: UserDashboard
-  },
+  // {
+  //   path: '/UserDashboard',
+  //   name: 'UserDashboard',
+  //   component: UserDashboard
+  // },
   
   {
     path: '/User_Bookings',
     name: 'UserBookingView',
     component: UserBookingView
+  },
+  {
+    path: '/search/:search',
+    name: 'Search page',
+    component: SearchComponent
   },
   
 ]
