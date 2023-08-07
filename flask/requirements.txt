@@ -5,3 +5,8 @@ SQLAlchemy
 Werkzeug
 flask-jwt-extended
 flask-cors
+redis
+celery
+flask-caching
+email
+weasyprint

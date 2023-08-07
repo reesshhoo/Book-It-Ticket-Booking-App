@@ -7,12 +7,12 @@
         <div class="collapse navbar-collapse" id="navbarColor01">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
-                    <a @click="redirectHome" class="nav-link active" href="#">Home
+                    <a @click="redirectHome" class="nav-link active lead" href="#">Home
                         <span class="visually-hidden">(current)</span>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a @click="redirectSummary" class="nav-link" href="#">Summary</a>
+                    <a @click="redirectSummary" class="nav-link lead" href="#">Summary</a>
                 </li>
 
             </ul>
@@ -38,7 +38,7 @@ export default {
             router.push('/Admin_view')
         },
         redirectSummary() {
-            router.push('/Admin_summary')
+            router.push('/Admin_Summary_view')
         }
     }
 }

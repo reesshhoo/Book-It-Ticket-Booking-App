@@ -5,7 +5,7 @@ import UserView from '../views/UserView.vue'
 import UserBookingView from '../views/UserBookingView.vue'
 import RegisterComponent from '../components/RegisterComponent.vue'
 import LoginComponent from '../components/LoginComponent.vue'
-import AdminSummary from '../components/AdminSummary.vue'
+import AdminSummaryView from '../views/AdminSummaryView.vue'
 // import UserDashboard from '../components/UserDashboard.vue'
 import SearchComponent from '../components/SearchComponent.vue'
 
@@ -31,15 +31,10 @@ const routes = [
     component: UserView
   },
   {
-    path: '/AdminSummary',
-    name: 'AdminSummary',
-    component: AdminSummary
+    path: '/Admin_Summary_view',
+    name: 'AdminSummaryView',
+    component: AdminSummaryView
   },
-  // {
-  //   path: '/UserDashboard',
-  //   name: 'UserDashboard',
-  //   component: UserDashboard
-  // },
   
   {
     path: '/User_Bookings',

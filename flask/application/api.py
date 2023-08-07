@@ -5,8 +5,8 @@ from flask import request, jsonify
 import os
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from werkzeug.security import generate_password_hash, check_password_hash
-from datetime import timedelta, datetime
-from .customerror import * 
+from datetime import timedelta, datetime 
+import celerytasks
 
 
 # <---------------------------------------------------Helper Functions--------------------------------------------------->
@@ -237,7 +237,10 @@ class Shows_api(Resource):
 
         shows_data = []
         for show in shows:
-
+            if show.date_time > datetime.now():
+                past_show = True
+            else:
+                past_show = False
             show_data = {
                 'show_id': show.show_id,
                 'name': show.name,
@@ -246,6 +249,7 @@ class Shows_api(Resource):
                 'seats_available': show.seats_available,
                 'show_screen': show.show_screen,
                 'imagefile': show.image,
+                'past_show': past_show,
                 'price': show.price,
                 'tags': convert_tags_into_array(show.tags)
             }
@@ -563,4 +567,18 @@ class Search(Resource):
             return {"venues": other_data},200
         
         return {'msg': 'No Results Found'},400
+
+
+class ExportJob(Resource):
+    @jwt_required()
+    def get(self,venue_id):
+        current_admin = get_jwt_identity()
+        admin = Admin.query.filter_by(email=current_admin).first()
+        if not admin :
+            return {'status': False, 'msg' : 'User not found'}, 400
+        
+        venue = Venue.query.filter_by(venue_id=venue_id).first()
+        celerytasks.exportVenue.delay(venue_id=venue_id, admin_mail=admin.email, admin_name=admin.name)
+
+        return jsonify('Task submitted')
 

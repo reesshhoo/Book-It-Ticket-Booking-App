@@ -5,12 +5,13 @@
         <div class="row">
             <div class="row-3 card border-primary mb-3 mt-5" v-for="venue in venues" :key="venue.venue_id">
                 <div class="d-flex justify-content-between  align-items-center" style=" border-bottom:3px solid rgba(13, 12, 12, 0.537); margin-bottom: 15px;">
-                    <h2 class="text-primary text-dark" style="margin-top:15px;">{{ venue.name }} <br />
+                    <h2 class="text-primary text-dark" style="margin-top:15px;">{{ venue.name }}  <br />
                         <h6 class="card-subtitle text-muted mt-0.7" style="font-size: 20px; margin-left: 2px;"> {{ venue.venue_location }}</h6>
                     </h2>
                     <!------------------------------------------------------- Venue Header ---------------------------------------------------------------->
                     <div>
                         <button @click="addShowOpenModal(venue.venue_id)" class="btn btn-success btn-lg text-primary mr-2" style="position:relative; "> Add show </button>
+                        <button @click="ExportVenue(venue.venue_id)" class="btn btn-lg btn-secondary mr-2">&#x1f4e5; </button>
                         <button @click="OpenEditvenueModal(venue.venue_id,venue.name, venue.venue_location)" class="btn btn-warning btn-lg text-primary mr-2"> &#128393; </button>
                         <button @click="deleteVenue(venue.venue_id)" class="btn btn-danger btn-lg text-primary"> Del </button>
 
@@ -40,7 +41,8 @@
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button @click="OpenEditShowModal(show.show_id,show.name,show.price,show.show_datetime,show.show_screen,show.seats_available, show.imagefile,show.tags)" class="btn btn-warning text-primary" type="button">Update</button>
+                            <button v-if="show.past_show" @click="OpenEditShowModal(show.show_id,show.name,show.price,show.show_datetime,show.show_screen,show.seats_available, show.imagefile,show.tags)" class="btn btn-warning text-primary" type="button">Update</button>
+                            <button v-else class="btn btn-warning disabled text-primary " type="button">Update</button>
                             <button @click="openDeleteShowModal(show.show_id)" class="btn btn-danger text-white mb-3" type="button">Delete</button>
 
                             <!-- </div> -->
@@ -719,7 +721,7 @@ export default {
                 }).catch((e) => {
                     console.log(e);
                 }).finally(() => {
-                    this.imagefile =null;
+                    
                     this.closeShowModal();
                     this.loadvenues();
                 });
@@ -890,6 +892,30 @@ export default {
                     this.closeDeleteShowModal();
                     this.loadvenues(); // Assuming you have a function to close the modal after editing.
                 });
+        },
+        ExportVenue(venueid){
+            console.log('reaching here')
+            const currentVenue = this.venues.find((venue) => venue.venue_id === venueid);
+            if (!currentVenue) {
+                console.error("Venue not found");
+                return;
+            }
+            fetch(`http://127.0.0.1:5000/api/ExportJob/${currentVenue.venue_id}`, {
+                    method: "GET",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Access-Control-Allow-Origin": "*",
+                        Authorization: "Bearer " + localStorage.getItem("access_token"),
+                    }
+                }).then((response) => {
+                if (!response.ok) {
+                    alert("Response not ok");
+                }
+                // console.log(response);
+                alert('Data exported succesfully')
+            }).catch((e) => {
+                console.log(e);
+            });
         }
 
     },
