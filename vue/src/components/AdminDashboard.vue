@@ -35,16 +35,16 @@
                         <div class="card-body">
                             <p class="card-text" style="font-size: 20px; ">Screen Number : {{ show.show_screen }}</p>
                             <p class="card-text" style="font-size: 20px; margin-top: -10px;">Price: &#x20B9; {{ show.price }} /-</p>
-                            <p class="card-text" style="font-size: 20px; margin-top: -10px;">Seats Available: {{ show.seats_booked }} / {{ show.seats_available }}</p>
-                            <p class="card-text" style="font-size: 20px; margin-top: -10px;">Genre :  {{ show.tags }} </p>
+                            <p class="card-text" style="font-size: 20px; margin-top: -10px;">Seats Available: {{ show.seats_available - show.seats_booked }} / {{ show.seats_available }}</p>
+                            <p class="card-text" style="font-size: 20px; margin-top: -10px;">Genre : <span v-for="tag in show.tags" :key="tag"> <span class=" badge bg-primary mr-1">{{ tag }}</span> </span></p>
 
                         </div>
 
                         <div class="d-grid gap-2">
-                            <button v-if="show.past_show" @click="OpenEditShowModal(show.show_id,show.name,show.price,show.show_datetime,show.show_screen,show.seats_available, show.imagefile,show.tags)" class="btn btn-warning text-primary" type="button">Update</button>
+                            <button v-if="!show.past_show" @click="OpenEditShowModal(show.show_id,show.name,show.price,show.show_datetime,show.show_screen,show.seats_available, show.imagefile,show.tags)" class="btn btn-warning text-primary" type="button">Update</button>
                             <button v-else class="btn btn-warning disabled text-primary " type="button">Update</button>
-                            <button @click="openDeleteShowModal(show.show_id)" class="btn btn-danger text-white mb-3" type="button">Delete</button>
-
+                            <button v-if="!show.past_show" @click="openDeleteShowModal(show.show_id)" class="btn btn-danger text-white mb-3" type="button">Delete</button>
+                            <button v-else class="btn btn-danger disabled text-primary mb-3" type="button">Delete</button>
                             <!-- </div> -->
                         </div>
                     </div>

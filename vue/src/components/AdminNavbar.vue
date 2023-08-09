@@ -3,7 +3,7 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
 <nav class="navbar navbar-expand-lg navbar-dark bg-primary mt-2 sticky-top" style="border-radius: 30px;">
     <div class="container-fluid">
-        <a class="navbar-brand" href="#"> <b style="font-size: 32px;"> BookIt </b></a>
+         <img class="navbar-brand" style="height:2%; width: 4%;" src="../assets/BookIt.png" alt=""> <b style="font-size: 32px; color: azure; margin-right: 10px;"> BookIt </b>
         <div class="collapse navbar-collapse" id="navbarColor01">
             <ul class="navbar-nav me-auto">
                 <li class="nav-item">
@@ -18,7 +18,7 @@
             </ul>
 
         </div>
-        <button id="logout" @click="logout" class="btn btn-danger nav-link text-primary font-weight-bold"> <i style="font-size:24px" class="fa">&#xf08b;</i> Logout</button>
+        <button id="logout" @click="logout" class="btn btn-secondary nav-link text-primary font-weight-bold" style="font-size: 20px;">Logout <i class="fa mt-1">&#xf08b;</i> </button>
     </div>
 </nav>
 </template>

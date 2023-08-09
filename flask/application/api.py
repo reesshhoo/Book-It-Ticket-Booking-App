@@ -15,7 +15,7 @@ def is_screen_available(venue_id, show_screen, date_time):
     print(date_time, type(date_time))
     
     print(date_time)
-    if date_time > (datetime.now() + timedelta(hours=5)):
+    if date_time > (datetime.now()):
         
         show = Show.query.filter_by(venue_id = venue_id,show_screen= show_screen).first()
         if show is not None:
@@ -237,7 +237,7 @@ class Shows_api(Resource):
 
         shows_data = []
         for show in shows:
-            if show.date_time > datetime.now():
+            if show.date_time < datetime.now():
                 past_show = True
             else:
                 past_show = False

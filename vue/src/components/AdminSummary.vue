@@ -25,7 +25,7 @@
         <div class="col-md-12 text-center">
             <h3 class="">Completed Shows</h3>
             <table class="table table-hover">
-                <thead >
+                <thead>
                     <tr class="table-secondary">
                         <th>Show Name</th>
                         <th>Show Date</th>
@@ -41,12 +41,11 @@
                         <td>{{ show.show_datetime }}</td>
                         <td>{{ show.price }}</td>
                         <td>{{ show.seats_booked }}</td>
-                        <td>
+                        <td style="width:30%">
                             <div class="progress">
-                                <div class="progress-bar progress-bar-striped" role="progressbar" style="width: 10%;" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
+                                <div class="progress-bar progress-bar-striped" role="progressbar" :style="getProgressBarStyle(show)" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100"></div>
                             </div>
                         </td>
-
                     </tr>
                 </tbody>
             </table>
@@ -90,6 +89,10 @@ export default {
             }).catch((e) => {
                 console.log(e);
             });
+        },
+        getProgressBarStyle(show) {
+            const progressWidth = (show.seats_booked * 100) / show.seats_available;
+            return `width: ${progressWidth}%;`;
         }
 
     },
@@ -105,11 +108,12 @@ export default {
             const pastShows = [];
             this.venues.forEach((venue) => {
                 venue.shows.shows.forEach((show) => {
-                    if (show['past-show']) {
+                    if (show.past_show) {
                         pastShows.push(show);
                     }
                 });
             });
+            console.log(pastShows)
             return pastShows;
         }
     },
