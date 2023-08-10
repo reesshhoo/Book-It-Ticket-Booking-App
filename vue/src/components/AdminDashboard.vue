@@ -20,7 +20,7 @@
 
                 <!----------------------------------------------------- Displaying Shows ----------------------------------------------------------------->
 
-                <div class="flex row mb-2">
+                <div v-if="venue.shows" class="flex row mb-2">
                     <div v-for="show in venue.shows.shows" :key="show.show_id" class="card border-primary mb-2" style="max-width: 20rem; margin-top: 13px; margin-left:15px">
                         
                         <div class="card-header" style="font-size: 32px;">{{show.name}}
@@ -48,6 +48,9 @@
                             <!-- </div> -->
                         </div>
                     </div>
+                </div>
+                <div v-else>
+                    <h4>No shows added yet</h4>
                 </div>
             </div>
         </div>
@@ -363,7 +366,7 @@ export default {
             this.venueNameerror= '';
             this.venueLocationerror ='';
             this.showModal = false;
-            location.reload()
+            // location.reload()
         },
         addShowOpenModal(venueid) {
             // this.venueName = venueName;
