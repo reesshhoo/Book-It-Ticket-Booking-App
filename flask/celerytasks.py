@@ -114,11 +114,11 @@ def user_monthly_report():
 @celery.on_after_finalize.connect()
 def setup_periodic_tasks(sender, **kwargs):
 	# sender.add_periodic_task(1.0, user_daily_reminders.s(), name='kuch bhi')
-	# sender.add_periodic_task(crontab(minute=28, hour=23), daily_reminders.s(), name='daily_reminders')
-	sender.add_periodic_task(crontab(minute=16, hour=23), user_monthly_report.s(), name='monthly_report')
+	# sender.add_periodic_task(crontab(minute=30, hour=19), daily_reminders.s(), name='daily_reminders')
+	sender.add_periodic_task(crontab(minute=30, hour=17), user_monthly_report.s(), name='monthly_report')
 	# sender.add_periodic_task(10, user_monthly_report.s(), name='monthly_report')
 	# sender.add_periodic_task(5, user_daily_reminders.s(), name='user_daily_reminders')
-	sender.add_periodic_task(crontab(minute=17, hour=23), user_daily_reminders.s(), name='user_daily_reminders')
+	sender.add_periodic_task(crontab(minute=30, hour=19), user_daily_reminders.s(), name='user_daily_reminders')
 
 	print('changed')
 	# sender.add_periodic_task(crontab(minute=00, hour=7), monthly_html_report.s(), name='monthly_html_repost')

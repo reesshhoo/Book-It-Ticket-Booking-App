@@ -29,7 +29,7 @@
                                 <p class="card-text" style="font-size: 20px;">Screen Number : {{ show.show_screen }}</p>
                                 <p class="card-text" style="font-size: 20px; margin-top: -10px;">Price: &#x20B9; {{ show.price }} /-</p>
                                 <p class="card-text" style="font-size: 20px; margin-top: -10px;">Seats Left: {{ show.seats_available - show.seats_booked }} / {{ show.seats_available }}</p>
-                                <p class="card-text" style="font-size: 20px; margin-top: -10px;">Genre : {{ show.tags }}</p>
+                                <p class="card-text" style="font-size: 20px; margin-top: -10px;">Genre : <span v-for="tag in show.tags" :key="tag"> <span class=" badge bg-primary mr-1">{{ tag }}</span> </span></p>
 
                             </div>
 
@@ -113,7 +113,7 @@
 </template>
 
 <script>
-// import router from '@/router';
+import router from '@/router';
 
 export default {
     name: "UserDashboard",
@@ -235,6 +235,7 @@ export default {
                             this.ClosePaymentModal();
                             this.loadvenues();
                             this.NumberOfPeople = null;
+                            router.push('/User_Bookings')
                         });
                 } else {
                     this.NumberOfPeopleerror = 'Please enter valid no. of seats';

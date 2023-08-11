@@ -334,7 +334,7 @@ export default {
             newShowSeats: null,
             newShowDateTime: '',
             Tags: null,
-            newTags: '',
+            newTags: null,
             showName: '',
             showid: null,
             venueid: null,
@@ -775,8 +775,8 @@ export default {
             if (this.newShowSeats) {
                 requestBody.seats_available = this.newShowSeats;
             }
-            if (this.newTags) {
-                requestBody.tags = this.newTags;
+            if (this.newTags && this.newTags.length > 0) {
+                requestBody.tags = this.newTags.join(',');
             }
             if (this.imagefile) {
                 // requestBody.imagefile = this.imagefile;
@@ -816,8 +816,8 @@ export default {
                         if (this.newShowSeats) {
                             currentShow.seats_available = this.newShowSeats;
                         }
-                        if (this.newTags) {
-                            currentShow.tags = this.newTags;
+                        if (this.newTags && this.newTags.length > 0) {
+                            currentShow.tags = this.newTags.join(',');
                         }
                         if (this.imagefile) {
                             // currentShow.imagefile = this.imagefile;

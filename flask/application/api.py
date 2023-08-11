@@ -323,8 +323,10 @@ class Shows_api(Resource):
         if image is not None:
             show.image = image
         if tags is not None:
+    # Convert the list of tags to a string, using a delimiter like comma
+            # tags_str = ','.join(tags)
             show.tags = tags
-
+        # print(show_name, date_time, show_screen, seats_available, price, image, tags)
         db.session.commit()
 
         return {'status': True, 'msg': 'Show updated successfully', 'show_id': show.show_id}, 200
