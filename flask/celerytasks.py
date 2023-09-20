@@ -4,7 +4,7 @@ from mail_config import send_email, generate_report_content, send_monthly_report
 import csv
 from application.models import *
 from celery.schedules import crontab
-from datetime import datetime
+from datetime import datetime, timedelta
 import os
 from jinja2 import Template
 import matplotlib.pyplot as plt
@@ -37,8 +37,9 @@ def exportVenue(venue_id,admin_mail,admin_name):
         shows = Show.query.filter_by(venue_id=venue_id).all()
 
         for i in shows:
-            csv_obj.writerow([i.venue_id, venue.name, i.name,
-                                i.seats_booked])
+            if i.date_time > (datetime.now() - timedelta(days=30)):
+                csv_obj.writerow([i.venue_id, venue.name, i.name,
+                                    i.seats_booked])
     
     with open(r"download.html") as file:
         msg_template = Template(file.read())
@@ -115,10 +116,10 @@ def user_monthly_report():
 def setup_periodic_tasks(sender, **kwargs):
 	# sender.add_periodic_task(1.0, user_daily_reminders.s(), name='kuch bhi')
 	# sender.add_periodic_task(crontab(minute=30, hour=19), daily_reminders.s(), name='daily_reminders')
-	sender.add_periodic_task(crontab(minute=30, hour=17), user_monthly_report.s(), name='monthly_report')
-	# sender.add_periodic_task(10, user_monthly_report.s(), name='monthly_report')
-	# sender.add_periodic_task(5, user_daily_reminders.s(), name='user_daily_reminders')
-	sender.add_periodic_task(crontab(minute=30, hour=19), user_daily_reminders.s(), name='user_daily_reminders')
+	# sender.add_periodic_task(crontab(minute=47, hour=16), user_monthly_report.s(), name='monthly_report')
+	sender.add_periodic_task(10, user_monthly_report.s(), name='monthly_report')
+	sender.add_periodic_task(20, user_daily_reminders.s(), name='user_daily_reminders')
+	# sender.add_periodic_task(crontab(minute=47, hour=16), user_daily_reminders.s(), name='user_daily_reminders')
 
 	print('changed')
 	# sender.add_periodic_task(crontab(minute=00, hour=7), monthly_html_report.s(), name='monthly_html_repost')

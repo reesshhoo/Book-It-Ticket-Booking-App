@@ -579,7 +579,7 @@ class ExportJob(Resource):
         if not admin :
             return {'status': False, 'msg' : 'User not found'}, 400
         
-        venue = Venue.query.filter_by(venue_id=venue_id).first()
+        # venue = Venue.query.filter_by(venue_id=venue_id).first()
         celerytasks.exportVenue.delay(venue_id=venue_id, admin_mail=admin.email, admin_name=admin.name)
 
         return jsonify('Task submitted')
